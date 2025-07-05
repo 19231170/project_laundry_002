@@ -1,0 +1,416 @@
+{
+  "info": {
+    "name": "Laundry Management System API",
+    "description": "Collection untuk testing API sistem manajemen laundry",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000/api/v1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Pelanggan",
+      "item": [
+        {
+          "name": "Get All Pelanggan",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pelanggan",
+              "host": ["{{base_url}}"],
+              "path": ["pelanggan"]
+            }
+          }
+        },
+        {
+          "name": "Get Pelanggan by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pelanggan/1",
+              "host": ["{{base_url}}"],
+              "path": ["pelanggan", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create Pelanggan",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nama\": \"John Doe\",\n  \"telepon\": \"081234567890\",\n  \"alamat\": \"Jl. Contoh No. 123\",\n  \"email\": \"john@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/pelanggan",
+              "host": ["{{base_url}}"],
+              "path": ["pelanggan"]
+            }
+          }
+        },
+        {
+          "name": "Update Pelanggan",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nama\": \"John Doe Updated\",\n  \"telepon\": \"081234567890\",\n  \"alamat\": \"Jl. Contoh No. 123 Updated\",\n  \"email\": \"john.updated@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/pelanggan/1",
+              "host": ["{{base_url}}"],
+              "path": ["pelanggan", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Pelanggan",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pelanggan/1",
+              "host": ["{{base_url}}"],
+              "path": ["pelanggan", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Layanan",
+      "item": [
+        {
+          "name": "Get All Layanan",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/layanan",
+              "host": ["{{base_url}}"],
+              "path": ["layanan"]
+            }
+          }
+        },
+        {
+          "name": "Get Layanan by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/layanan/1",
+              "host": ["{{base_url}}"],
+              "path": ["layanan", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create Layanan",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nama_layanan\": \"Cuci Express\",\n  \"satuan\": \"KG\",\n  \"harga\": 8000,\n  \"deskripsi\": \"Layanan cuci kilat dalam 24 jam\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/layanan",
+              "host": ["{{base_url}}"],
+              "path": ["layanan"]
+            }
+          }
+        },
+        {
+          "name": "Update Layanan",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nama_layanan\": \"Cuci Express Updated\",\n  \"satuan\": \"KG\",\n  \"harga\": 9000,\n  \"deskripsi\": \"Layanan cuci kilat dalam 24 jam - Updated\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/layanan/1",
+              "host": ["{{base_url}}"],
+              "path": ["layanan", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Layanan",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/layanan/1",
+              "host": ["{{base_url}}"],
+              "path": ["layanan", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Transaksi",
+      "item": [
+        {
+          "name": "Get All Transaksi",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/transaksi",
+              "host": ["{{base_url}}"],
+              "path": ["transaksi"]
+            }
+          }
+        },
+        {
+          "name": "Get Transaksi by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/transaksi/1",
+              "host": ["{{base_url}}"],
+              "path": ["transaksi", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create Transaksi",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pelanggan_id\": 1,\n  \"tanggal_masuk\": \"2024-07-04\",\n  \"tanggal_selesai\": \"2024-07-06\",\n  \"catatan\": \"Pakaian kotor sekali\",\n  \"layanan\": [\n    {\n      \"layanan_id\": 1,\n      \"jumlah\": 2.5\n    },\n    {\n      \"layanan_id\": 2,\n      \"jumlah\": 1\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/transaksi",
+              "host": ["{{base_url}}"],
+              "path": ["transaksi"]
+            }
+          }
+        },
+        {
+          "name": "Update Transaksi",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pelanggan_id\": 1,\n  \"tanggal_masuk\": \"2024-07-04\",\n  \"tanggal_selesai\": \"2024-07-06\",\n  \"status\": \"selesai\",\n  \"catatan\": \"Pakaian kotor sekali - Updated\",\n  \"layanan\": [\n    {\n      \"layanan_id\": 1,\n      \"jumlah\": 3\n    },\n    {\n      \"layanan_id\": 2,\n      \"jumlah\": 1.5\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/transaksi/1",
+              "host": ["{{base_url}}"],
+              "path": ["transaksi", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Transaksi",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/transaksi/1",
+              "host": ["{{base_url}}"],
+              "path": ["transaksi", "1"]
+            }
+          }
+        },
+        {
+          "name": "Generate Struk PDF",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/transaksi/1/struk",
+              "host": ["{{base_url}}"],
+              "path": ["transaksi", "1", "struk"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Laporan",
+      "item": [
+        {
+          "name": "Dashboard Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/laporan/dashboard",
+              "host": ["{{base_url}}"],
+              "path": ["laporan", "dashboard"]
+            }
+          }
+        },
+        {
+          "name": "Laporan Pemasukan Pengeluaran",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/laporan/pemasukan-pengeluaran?tipe=harian&tanggal_mulai=2024-07-01&tanggal_selesai=2024-07-31",
+              "host": ["{{base_url}}"],
+              "path": ["laporan", "pemasukan-pengeluaran"],
+              "query": [
+                {
+                  "key": "tipe",
+                  "value": "harian"
+                },
+                {
+                  "key": "tanggal_mulai",
+                  "value": "2024-07-01"
+                },
+                {
+                  "key": "tanggal_selesai",
+                  "value": "2024-07-31"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Laporan Layanan Terlaris",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/laporan/layanan-terlaris?tanggal_mulai=2024-07-01&tanggal_selesai=2024-07-31&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["laporan", "layanan-terlaris"],
+              "query": [
+                {
+                  "key": "tanggal_mulai",
+                  "value": "2024-07-01"
+                },
+                {
+                  "key": "tanggal_selesai",
+                  "value": "2024-07-31"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Export Transaksi Excel",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/laporan/export/transaksi?tanggal_mulai=2024-07-01&tanggal_selesai=2024-07-31",
+              "host": ["{{base_url}}"],
+              "path": ["laporan", "export", "transaksi"],
+              "query": [
+                {
+                  "key": "tanggal_mulai",
+                  "value": "2024-07-01"
+                },
+                {
+                  "key": "tanggal_selesai",
+                  "value": "2024-07-31"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Export Pemasukan Pengeluaran Excel",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/laporan/export/pemasukan-pengeluaran?tipe=harian&tanggal_mulai=2024-07-01&tanggal_selesai=2024-07-31",
+              "host": ["{{base_url}}"],
+              "path": ["laporan", "export", "pemasukan-pengeluaran"],
+              "query": [
+                {
+                  "key": "tipe",
+                  "value": "harian"
+                },
+                {
+                  "key": "tanggal_mulai",
+                  "value": "2024-07-01"
+                },
+                {
+                  "key": "tanggal_selesai",
+                  "value": "2024-07-31"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Import Transaksi Excel",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/path/to/your/excel/file.xlsx"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/laporan/import/transaksi",
+              "host": ["{{base_url}}"],
+              "path": ["laporan", "import", "transaksi"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
