@@ -6,6 +6,10 @@ use App\Http\Controllers\PelangganController;
 use App\Http\Controllers\LayananController;
 use App\Http\Controllers\TransaksiController;
 use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\PengeluaranController;
+use App\Http\Controllers\KategoriPengeluaranController;
+use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\InventarisController;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,11 +38,20 @@ Route::prefix('v1')->group(function () {
     Route::apiResource('transaksi', TransaksiController::class);
     Route::get('transaksi/{id}/struk', [TransaksiController::class, 'generateStruk']);
     
+    // Pengeluaran routes
+    Route::apiResource('pengeluaran', PengeluaranController::class);
+    Route::apiResource('kategori-pengeluaran', KategoriPengeluaranController::class);
+    Route::apiResource('supplier', SupplierController::class);
+    Route::apiResource('inventaris', InventarisController::class);
+    
     // Laporan routes
     Route::prefix('laporan')->group(function () {
         Route::get('dashboard', [LaporanController::class, 'getDashboardStats']);
         Route::get('pemasukan-pengeluaran', [LaporanController::class, 'getLaporanPemasukanPengeluaran']);
         Route::get('layanan-terlaris', [LaporanController::class, 'getLaporanLayananTerlaris']);
+        Route::get('laba-rugi', [LaporanController::class, 'getLaporanLabaRugi']);
+        Route::get('penggunaan-bahan', [LaporanController::class, 'getLaporanPenggunaanBahan']);
+        Route::get('pengeluaran-per-kategori', [LaporanController::class, 'getLaporanPengeluaranPerKategori']);
         
         // Export routes
         Route::get('export/transaksi', [LaporanController::class, 'exportTransaksi']);
