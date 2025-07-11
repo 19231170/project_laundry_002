@@ -80,6 +80,19 @@
                     </a>
                 </div>
 
+                <!-- Jenis Laporan -->
+                <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Jenis Laporan</h3>
+                    <div class="space-y-3">
+                        <a href="{{ route('laporan.index') }}" class="block w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                            Laporan Transaksi
+                        </a>
+                        <a href="{{ route('laporan.pembulatan') }}" class="block w-full bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                            Laporan Pembulatan (Receh)
+                        </a>
+                    </div>
+                </div>
+
                 <!-- Data Table -->
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">

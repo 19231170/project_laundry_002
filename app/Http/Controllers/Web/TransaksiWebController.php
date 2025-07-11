@@ -14,11 +14,29 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class TransaksiWebController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $transaksi = Transaksi::with(['pelanggan', 'detailTransaksi.layanan'])
-            ->latest()
-            ->paginate(10);
+        $query = Transaksi::with(['pelanggan', 'detailTransaksi.layanan']);
+        
+        // Filter by payment status if requested
+        if ($request->has('filter')) {
+            if ($request->filter === 'belum_lunas') {
+                $query->where('status_pembayaran', 'belum_lunas');
+            } elseif ($request->filter === 'lunas') {
+                $query->where('status_pembayaran', 'lunas');
+            }
+        }
+        
+        // Filter by status if requested
+        if ($request->has('status')) {
+            $query->where('status', $request->status);
+        }
+        
+        $transaksi = $query->latest()->paginate(10);
+        
+        // Preserve filter in pagination links
+        $transaksi->appends($request->all());
+        
         return view('transaksi.index', compact('transaksi'));
     }
 
@@ -36,6 +54,9 @@ class TransaksiWebController extends Controller
             'tanggal_masuk' => 'required|date',
             'tanggal_selesai' => 'nullable|date',
             'status' => 'nullable|in:pending,proses,selesai,diambil',
+            'status_pembayaran' => 'nullable|in:belum_lunas,lunas',
+            'tanggal_pembayaran' => 'nullable|date',
+            'jumlah_dibayar' => 'nullable|numeric|min:0',
             'catatan' => 'nullable|string',
             'layanan' => 'required|array',
             'layanan.*.layanan_id' => 'required|exists:layanan,id',
@@ -53,9 +74,13 @@ class TransaksiWebController extends Controller
                 'pelanggan_id' => $request->pelanggan_id,
                 'tanggal_masuk' => $request->tanggal_masuk,
                 'tanggal_selesai' => $request->tanggal_selesai,
+                'status' => $request->status ?? 'pending',
+                'status_pembayaran' => $request->status_pembayaran ?? 'belum_lunas',
+                'tanggal_pembayaran' => $request->tanggal_pembayaran,
                 'catatan' => $request->catatan,
                 'total_harga' => 0,
-                'status' => $request->status ?? 'pending'
+                'jumlah_dibayar' => 0,
+                'sisa_pembayaran' => 0
             ]);
 
             $totalHarga = 0;
@@ -75,7 +100,27 @@ class TransaksiWebController extends Controller
                 $totalHarga += $subtotal;
             }
 
-            $transaksi->update(['total_harga' => $totalHarga]);
+            // Handle pembulatan
+            $pembulatan = $request->filled('pembulatan') ? $request->pembulatan : 0;
+            $totalSetelahPembulatan = $request->filled('total_setelah_pembulatan') ? $request->total_setelah_pembulatan : $totalHarga;
+
+            // Update total harga and payment info
+            $jumlahDibayar = $request->filled('jumlah_dibayar') ? $request->jumlah_dibayar : 0;
+            $sisaPembayaran = $totalSetelahPembulatan - $jumlahDibayar;
+            
+            // If marked as paid, set payment to total
+            if ($request->status_pembayaran === 'lunas') {
+                $jumlahDibayar = $totalSetelahPembulatan;
+                $sisaPembayaran = 0;
+            }
+            
+            $transaksi->update([
+                'total_harga' => $totalHarga,
+                'pembulatan' => $pembulatan,
+                'total_setelah_pembulatan' => $totalSetelahPembulatan,
+                'jumlah_dibayar' => $jumlahDibayar,
+                'sisa_pembayaran' => $sisaPembayaran
+            ]);
 
             DB::commit();
             
@@ -90,7 +135,15 @@ class TransaksiWebController extends Controller
     public function show(Transaksi $transaksi)
     {
         $transaksi->load(['pelanggan', 'detailTransaksi.layanan']);
-        return view('transaksi.show', compact('transaksi'));
+        
+        // Get pengeluaran data related to the transaction date
+        // We'll fetch pengeluaran from the same date as the transaction
+        $pengeluaran = \App\Models\Pengeluaran::with(['kategori', 'detailPengeluaran.supplier'])
+            ->where('tanggal', $transaksi->tanggal_masuk)
+            ->orderBy('created_at', 'desc')
+            ->get();
+            
+        return view('transaksi.show', compact('transaksi', 'pengeluaran'));
     }
 
     public function edit(Transaksi $transaksi)
@@ -108,6 +161,9 @@ class TransaksiWebController extends Controller
             'tanggal_masuk' => 'required|date',
             'tanggal_selesai' => 'nullable|date',
             'status' => 'required|in:pending,proses,selesai,diambil',
+            'status_pembayaran' => 'required|in:belum_lunas,lunas',
+            'tanggal_pembayaran' => 'nullable|date',
+            'jumlah_dibayar' => 'nullable|numeric|min:0',
             'catatan' => 'nullable|string',
             'layanan' => 'required|array',
             'layanan.*.layanan_id' => 'required|exists:layanan,id',
@@ -125,6 +181,8 @@ class TransaksiWebController extends Controller
                 'tanggal_masuk' => $request->tanggal_masuk,
                 'tanggal_selesai' => $request->tanggal_selesai,
                 'status' => $request->status,
+                'status_pembayaran' => $request->status_pembayaran,
+                'tanggal_pembayaran' => $request->tanggal_pembayaran,
                 'catatan' => $request->catatan,
             ]);
 
@@ -147,7 +205,27 @@ class TransaksiWebController extends Controller
                 $totalHarga += $subtotal;
             }
 
-            $transaksi->update(['total_harga' => $totalHarga]);
+            // Handle pembulatan
+            $pembulatan = $request->filled('pembulatan') ? $request->pembulatan : 0;
+            $totalSetelahPembulatan = $request->filled('total_setelah_pembulatan') ? $request->total_setelah_pembulatan : $totalHarga;
+
+            // Handle payment
+            $jumlahDibayar = $request->filled('jumlah_dibayar') ? $request->jumlah_dibayar : 0;
+            $sisaPembayaran = $totalSetelahPembulatan - $jumlahDibayar;
+            
+            // If marked as paid, set the payment amount to total
+            if ($request->status_pembayaran === 'lunas') {
+                $jumlahDibayar = $totalSetelahPembulatan;
+                $sisaPembayaran = 0;
+            }
+            
+            $transaksi->update([
+                'total_harga' => $totalHarga,
+                'pembulatan' => $pembulatan,
+                'total_setelah_pembulatan' => $totalSetelahPembulatan,
+                'jumlah_dibayar' => $jumlahDibayar,
+                'sisa_pembayaran' => $sisaPembayaran
+            ]);
 
             DB::commit();
             
@@ -185,4 +263,6 @@ class TransaksiWebController extends Controller
         
         return $pdf->stream('Struk-' . $transaksi->kode_transaksi . '.pdf');
     }
+
+
 }

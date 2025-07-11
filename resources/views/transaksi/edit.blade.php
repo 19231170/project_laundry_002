@@ -58,49 +58,93 @@
                     @csrf
                     @method('PUT')
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="grid grid-cols-1 gap-6 mt-4 sm:grid-cols-2">
                         <div>
-                            <label for="pelanggan_id" class="block text-sm font-medium text-gray-700">Pelanggan</label>
-                            <select name="pelanggan_id" id="pelanggan_id" 
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
-                                <option value="">Pilih Pelanggan</option>
+                            <label for="pelanggan_id" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Pelanggan</label>
+                            <select id="pelanggan_id" name="pelanggan_id" 
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300" required>
                                 @foreach($pelanggan as $p)
                                     <option value="{{ $p->id }}" {{ (old('pelanggan_id', $transaksi->pelanggan_id) == $p->id) ? 'selected' : '' }}>
-                                        {{ $p->nama }} - {{ $p->nomor_telepon }}
+                                        {{ $p->nama }} ({{ $p->telepon }})
                                     </option>
                                 @endforeach
                             </select>
                         </div>
 
                         <div>
-                            <label for="tanggal_masuk" class="block text-sm font-medium text-gray-700">Tanggal Masuk</label>
-                            <input type="date" name="tanggal_masuk" id="tanggal_masuk" 
-                                value="{{ old('tanggal_masuk', $transaksi->tanggal_masuk?->format('Y-m-d')) }}"
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
-                        </div>
-
-                        <div>
-                            <label for="tanggal_selesai" class="block text-sm font-medium text-gray-700">Tanggal Selesai</label>
-                            <input type="date" name="tanggal_selesai" id="tanggal_selesai" 
-                                value="{{ old('tanggal_selesai', $transaksi->tanggal_selesai?->format('Y-m-d')) }}"
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-
-                        <div>
-                            <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
-                            <select name="status" id="status" 
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
-                                <option value="pending" {{ old('status', $transaksi->status) == 'pending' ? 'selected' : '' }}>Pending</option>
-                                <option value="proses" {{ old('status', $transaksi->status) == 'proses' ? 'selected' : '' }}>Proses</option>
-                                <option value="selesai" {{ old('status', $transaksi->status) == 'selesai' ? 'selected' : '' }}>Selesai</option>
+                            <label for="status_pembayaran" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Status Pembayaran</label>
+                            <select id="status_pembayaran" name="status_pembayaran" 
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300" required>
+                                <option value="belum_lunas" {{ $transaksi->status_pembayaran == 'belum_lunas' ? 'selected' : '' }}>Belum Lunas</option>
+                                <option value="lunas" {{ $transaksi->status_pembayaran == 'lunas' ? 'selected' : '' }}>Lunas</option>
                             </select>
                         </div>
                     </div>
 
-                    <div class="mt-6">
-                        <label for="catatan" class="block text-sm font-medium text-gray-700">Catatan</label>
-                        <textarea name="catatan" id="catatan" rows="3" 
-                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">{{ old('catatan', $transaksi->catatan) }}</textarea>
+                    <div class="grid grid-cols-1 gap-6 mt-4 sm:grid-cols-3">
+                        <div>
+                            <label for="tanggal_masuk" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Tanggal Masuk</label>
+                            <input type="date" id="tanggal_masuk" name="tanggal_masuk" 
+                                value="{{ old('tanggal_masuk', $transaksi->tanggal_masuk?->format('Y-m-d')) }}"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300" required>
+                        </div>
+
+                        <div>
+                            <label for="tanggal_selesai" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Tanggal Selesai</label>
+                            <input type="date" id="tanggal_selesai" name="tanggal_selesai" 
+                                value="{{ old('tanggal_selesai', $transaksi->tanggal_selesai?->format('Y-m-d')) }}"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300">
+                        </div>
+
+                        <div>
+                            <label for="tanggal_pembayaran" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Tanggal Pembayaran</label>
+                            <input type="date" id="tanggal_pembayaran" name="tanggal_pembayaran" 
+                                value="{{ old('tanggal_pembayaran', $transaksi->tanggal_pembayaran?->format('Y-m-d')) }}"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-6 mt-4 sm:grid-cols-3">
+                        <div>
+                            <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Status Transaksi</label>
+                            <select id="status" name="status" 
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300" required>
+                                <option value="pending" {{ old('status', $transaksi->status) == 'pending' ? 'selected' : '' }}>Pending</option>
+                                <option value="proses" {{ old('status', $transaksi->status) == 'proses' ? 'selected' : '' }}>Proses</option>
+                                <option value="selesai" {{ old('status', $transaksi->status) == 'selesai' ? 'selected' : '' }}>Selesai</option>
+                                <option value="diambil" {{ old('status', $transaksi->status) == 'diambil' ? 'selected' : '' }}>Diambil</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="total_harga" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Total Harga</label>
+                            <div class="relative mt-1">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 dark:text-gray-400">Rp</span>
+                                </div>
+                                <input type="text" id="total_harga" name="total_display" 
+                                    value="{{ number_format($transaksi->total_harga, 0, ',', '.') }}"
+                                    readonly class="pl-10 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 bg-gray-100">
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="jumlah_dibayar" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Jumlah Dibayar</label>
+                            <div class="relative mt-1">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 dark:text-gray-400">Rp</span>
+                                </div>
+                                <input type="number" step="0.01" id="jumlah_dibayar" name="jumlah_dibayar" 
+                                    value="{{ $transaksi->jumlah_dibayar }}"
+                                    class="pl-10 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <label for="catatan" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Catatan</label>
+                        <textarea id="catatan" name="catatan" rows="3" 
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300">{{ old('catatan', $transaksi->catatan) }}</textarea>
                     </div>
 
                     <div class="mt-6">
@@ -173,9 +217,45 @@
                         </div>
 
                         <div class="mt-4 bg-gray-50 p-4 rounded-lg">
-                            <div class="flex justify-between items-center">
+                            <div class="flex justify-between items-center mb-4">
                                 <span class="text-lg font-medium text-gray-900">Total Keseluruhan:</span>
                                 <span id="total-keseluruhan" class="text-xl font-bold text-blue-600">Rp {{ number_format($transaksi->total_harga, 0, ',', '.') }}</span>
+                                <input type="hidden" name="total_harga" id="total_harga" value="{{ $transaksi->total_harga }}">
+                            </div>
+                            
+                            <div class="border-t pt-4">
+                                <h3 class="text-md font-medium text-gray-900 mb-3">Pembulatan</h3>
+                                <div class="flex flex-wrap gap-2 mb-3">
+                                    <button type="button" id="btn-pembulatan-100" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-1 px-3 rounded text-sm">
+                                        Bulatkan ke 100
+                                    </button>
+                                    <button type="button" id="btn-pembulatan-500" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-1 px-3 rounded text-sm">
+                                        Bulatkan ke 500
+                                    </button>
+                                    <button type="button" id="btn-pembulatan-1000" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-1 px-3 rounded text-sm">
+                                        Bulatkan ke 1000
+                                    </button>
+                                </div>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Nilai Pembulatan</label>
+                                        <input type="number" name="pembulatan" id="pembulatan" value="{{ $transaksi->pembulatan ?? 0 }}"
+                                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                                            oninput="hitungTotalSetelahPembulatan()">
+                                        <div class="mt-1 text-xs text-gray-500">Positif: pembulatan ke atas, Negatif: pembulatan ke bawah</div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Total Setelah Pembulatan</label>
+                                        <div class="mt-1 flex items-center">
+                                            <span id="total-setelah-pembulatan" class="text-lg font-semibold text-green-600">
+                                                Rp {{ number_format($transaksi->total_setelah_pembulatan ?? $transaksi->total_harga, 0, ',', '.') }}
+                                            </span>
+                                            <input type="hidden" name="total_setelah_pembulatan" id="total_setelah_pembulatan" 
+                                                value="{{ $transaksi->total_setelah_pembulatan ?? $transaksi->total_harga }}">
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -358,6 +438,10 @@ function calculateTotal() {
     });
     
     document.getElementById('total-keseluruhan').textContent = 'Rp ' + total.toLocaleString('id-ID');
+    document.getElementById('total_harga').value = total;
+    
+    // Update juga total setelah pembulatan
+    hitungTotalSetelahPembulatan();
 }
 
 // Form submission with validation
@@ -427,6 +511,62 @@ document.addEventListener('DOMContentLoaded', function() {
     updateRemoveButtons();
     updateLayananNumbers();
     calculateTotal();
+    
+    // Event listener untuk tombol pembulatan
+    document.getElementById('btn-pembulatan-100').addEventListener('click', () => hitungPembulatan(100));
+    document.getElementById('btn-pembulatan-500').addEventListener('click', () => hitungPembulatan(500));
+    document.getElementById('btn-pembulatan-1000').addEventListener('click', () => hitungPembulatan(1000));
+    
+    // Initial calculation
+    hitungTotalSetelahPembulatan();
+});
+
+function hitungPembulatan(nominal) {
+    const totalHarga = parseFloat(document.getElementById('total_harga').value) || 0;
+    const modulo = totalHarga % nominal;
+    
+    let pembulatan = 0;
+    if(modulo > 0) {
+        // Pembulatan ke atas
+        pembulatan = nominal - modulo;
+    }
+    
+    document.getElementById('pembulatan').value = pembulatan;
+    hitungTotalSetelahPembulatan();
+}
+
+function hitungTotalSetelahPembulatan() {
+    const totalHarga = parseFloat(document.getElementById('total_harga').value) || 0;
+    const pembulatan = parseFloat(document.getElementById('pembulatan').value) || 0;
+    const totalSetelahPembulatan = totalHarga + pembulatan;
+    
+    document.getElementById('total-setelah-pembulatan').textContent = 'Rp ' + totalSetelahPembulatan.toLocaleString('id-ID');
+    document.getElementById('total_setelah_pembulatan').value = totalSetelahPembulatan;
+}
+
+// Mengatur jumlah pembayaran dan status pembayaran
+document.addEventListener('DOMContentLoaded', function() {
+    const statusPembayaran = document.getElementById('status_pembayaran');
+    const jumlahDibayar = document.getElementById('jumlah_dibayar');
+    const tanggalPembayaran = document.getElementById('tanggal_pembayaran');
+    const totalHarga = parseFloat('{{ $transaksi->total_harga }}');
+    
+    statusPembayaran.addEventListener('change', function() {
+        if (this.value === 'lunas') {
+            // Jika status diubah ke lunas, tandai tanggal pembayaran hari ini jika belum diisi
+            if (!tanggalPembayaran.value) {
+                tanggalPembayaran.value = new Date().toISOString().substr(0, 10);
+            }
+            
+            // Isi jumlah pembayaran dengan total harga
+            jumlahDibayar.value = totalHarga;
+        }
+    });
+    
+    // Cek status pembayaran saat halaman dimuat
+    if (statusPembayaran.value === 'lunas' && !tanggalPembayaran.value) {
+        tanggalPembayaran.value = new Date().toISOString().substr(0, 10);
+    }
 });
 </script>
 </x-app-layout>

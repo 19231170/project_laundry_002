@@ -15,16 +15,27 @@ class Transaksi extends Model
         'kode_transaksi',
         'pelanggan_id',
         'total_harga',
+        'pembulatan',
+        'total_setelah_pembulatan',
         'tanggal_masuk',
         'tanggal_selesai',
         'status',
+        'status_pembayaran',
+        'tanggal_pembayaran',
+        'jumlah_dibayar',
+        'sisa_pembayaran',
         'catatan'
     ];
     
     protected $casts = [
         'total_harga' => 'decimal:2',
+        'pembulatan' => 'integer',
+        'total_setelah_pembulatan' => 'decimal:2',
         'tanggal_masuk' => 'date',
-        'tanggal_selesai' => 'date'
+        'tanggal_selesai' => 'date',
+        'tanggal_pembayaran' => 'date',
+        'jumlah_dibayar' => 'decimal:2',
+        'sisa_pembayaran' => 'decimal:2'
     ];
     
     public function pelanggan()

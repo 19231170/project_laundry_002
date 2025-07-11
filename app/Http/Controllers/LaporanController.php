@@ -13,7 +13,12 @@ use App\Models\DetailPengeluaran;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\TransaksiExport;
 use App\Exports\PemasukanPengeluaranExport;
+use App\Exports\LabaRugiExport;
+use App\Exports\PenggunaanBahanExport;
+use App\Exports\PengeluaranKategoriExport;
+use App\Exports\PembulatanExport;
 use App\Imports\TransaksiImport;
+use App\Models\Inventaris;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 
@@ -321,6 +326,19 @@ class LaporanController extends Controller
             ->groupBy('status')
             ->get()
             ->pluck('jumlah', 'status');
+            
+        // Payment status statistics
+        $totalBelumLunas = Transaksi::where('status_pembayaran', 'belum_lunas')
+            ->sum('sisa_pembayaran');
+        $transaksiCount = Transaksi::count();
+        $belumLunasCount = Transaksi::where('status_pembayaran', 'belum_lunas')->count();
+        $lunasCount = Transaksi::where('status_pembayaran', 'lunas')->count();
+        $pembayaranData = [
+            'total_belum_lunas' => $totalBelumLunas,
+            'transaksi_belum_lunas' => $belumLunasCount,
+            'transaksi_lunas' => $lunasCount,
+            'persentase_lunas' => $transaksiCount > 0 ? round(($lunasCount / $transaksiCount) * 100, 2) : 0
+        ];
 
         // Pengeluaran terbaru
         $pengeluaranTerbaru = Pengeluaran::with(['kategori', 'detailPengeluaran'])
@@ -398,8 +416,10 @@ class LaporanController extends Controller
                 'total_pelanggan' => Pelanggan::count(),
                 'total_layanan' => Layanan::count(),
                 'pengeluaran_terbaru' => $pengeluaranTerbaru,
+                'pembayaran' => $pembayaranData,
                 'grafik_perbandingan' => $grafikPerbandingan,
-                'pengeluaran_per_kategori' => $pengeluaranPerKategori
+                'pengeluaran_per_kategori' => $pengeluaranPerKategori,
+                'pembayaran_status' => $pembayaranData
             ]
         ]);
     }
@@ -749,6 +769,73 @@ class LaporanController extends Controller
         $fileName = 'laporan_pengeluaran_kategori_' . $tanggalMulai . '_sd_' . $tanggalAkhir . '.xlsx';
         
         return Excel::download(new PengeluaranKategoriExport($data, $tanggalMulai, $tanggalAkhir), $fileName);
+    }
+
+    /**
+     * Get laporan pembulatan (receh)
+     */
+    public function getLaporanPembulatan(Request $request)
+    {
+        $startDate = $request->input('start_date', Carbon::now()->startOfMonth()->format('Y-m-d'));
+        $endDate = $request->input('end_date', Carbon::now()->format('Y-m-d'));
+        $jenis = $request->input('jenis', 'semua');
+        
+        $query = Transaksi::with('pelanggan')
+            ->whereBetween('tanggal_masuk', [$startDate, $endDate])
+            ->where('pembulatan', '!=', 0);
+            
+        // Filter berdasarkan jenis pembulatan
+        if ($jenis === 'positif') {
+            $query->where('pembulatan', '>', 0);
+        } elseif ($jenis === 'negatif') {
+            $query->where('pembulatan', '<', 0);
+        }
+        
+        $transaksi = $query->orderBy('tanggal_masuk', 'desc')->get();
+        
+        // Hitung statistik
+        $totalPositif = $transaksi->where('pembulatan', '>', 0)->sum('pembulatan');
+        $totalNegatif = $transaksi->where('pembulatan', '<', 0)->sum('pembulatan');
+        
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'transaksi' => $transaksi,
+                'total_transaksi' => $transaksi->count(),
+                'total_pembulatan_positif' => $totalPositif,
+                'total_pembulatan_negatif' => $totalNegatif,
+                'net_pembulatan' => $totalPositif + $totalNegatif,
+                'periode' => [
+                    'start_date' => $startDate,
+                    'end_date' => $endDate
+                ]
+            ]
+        ]);
+    }
+
+    /**
+     * Export laporan pembulatan ke Excel
+     */
+    public function exportPembulatan(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date',
+            'jenis' => 'nullable|in:semua,positif,negatif'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $filename = 'laporan_pembulatan_' . date('Y-m-d_H-i-s') . '.xlsx';
+        
+        // Use the dedicated PembulatanExport class for better handling and formatting
+        return Excel::download(new PembulatanExport($request->all()), $filename);
     }
 
     /**

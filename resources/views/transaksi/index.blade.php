@@ -15,6 +15,19 @@
                         Tambah Transaksi
                     </a>
                 </div>
+                
+                <!-- Filter Controls -->
+                <div class="flex mb-6 space-x-2">
+                    <a href="{{ route('transaksi.index') }}" class="px-4 py-2 text-sm border rounded-md {{ !request('filter') ? 'bg-blue-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-100' }}">
+                        Semua
+                    </a>
+                    <a href="{{ route('transaksi.index', ['filter' => 'lunas']) }}" class="px-4 py-2 text-sm border rounded-md {{ request('filter') == 'lunas' ? 'bg-green-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-100' }}">
+                        Lunas
+                    </a>
+                    <a href="{{ route('transaksi.index', ['filter' => 'belum_lunas']) }}" class="px-4 py-2 text-sm border rounded-md {{ request('filter') == 'belum_lunas' ? 'bg-red-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-100' }}">
+                        Belum Lunas
+                    </a>
+                </div>
 
                 @if (session('success'))
                     <script>
@@ -66,6 +79,9 @@
                                     Status
                                 </th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Pembayaran
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Aksi
                                 </th>
                             </tr>
@@ -95,6 +111,17 @@
                                             {{ ucfirst($t->status) }}
                                         </span>
                                     </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                            {{ $t->status_pembayaran == 'lunas' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                            {{ $t->status_pembayaran == 'lunas' ? 'Lunas' : 'Belum Lunas' }}
+                                        </span>
+                                        @if ($t->status_pembayaran == 'belum_lunas' && $t->jumlah_dibayar > 0)
+                                            <div class="text-xs text-gray-500 mt-1">
+                                                Dibayar: Rp {{ number_format($t->jumlah_dibayar, 0, ',', '.') }}
+                                            </div>
+                                        @endif
+                                    </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <a href="{{ route('transaksi.show', $t->id) }}" class="text-blue-600 hover:text-blue-900 mr-2">
                                             Detail
@@ -114,7 +141,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                    <td colspan="8" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                                         Tidak ada data transaksi
                                     </td>
                                 </tr>

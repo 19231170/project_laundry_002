@@ -59,6 +59,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         'destroy' => 'transaksi.destroy',
     ]);
     Route::get('transaksi/{id}/struk', [TransaksiWebController::class, 'generateStruk'])->name('transaksi.struk');
+
     
     // Laporan Web Routes
     Route::prefix('laporan')->name('laporan.')->group(function () {
@@ -98,6 +99,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/laporan/pengeluaran-kategori', function () {
         return view('laporan.pengeluaran-kategori');
     })->middleware(['auth', 'verified'])->name('laporan.pengeluaran-kategori');
+
+    Route::get('/laporan/pembulatan', function () {
+        return view('laporan.pembulatan');
+    })->name('laporan.pembulatan');
 });
 
 Route::middleware('auth')->group(function () {

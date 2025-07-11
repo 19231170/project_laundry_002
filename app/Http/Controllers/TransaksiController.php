@@ -310,4 +310,81 @@ class TransaksiController extends Controller
         
         return $pdf->stream('Struk-' . $transaksi->kode_transaksi . '.pdf');
     }
+    
+    /**
+     * Process pembayaran for a transaksi.
+     */
+    public function processPembayaran(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'transaksi_id' => 'required|exists:transaksi,id',
+            'jumlah_dibayar' => 'required|numeric|min:0',
+            'tanggal_pembayaran' => 'required|date',
+            'status_pembayaran' => 'required|in:belum_lunas,lunas',
+            'catatan' => 'nullable|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validasi gagal',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $transaksi = Transaksi::findOrFail($request->transaksi_id);
+            $jumlahDibayarBaru = $request->jumlah_dibayar;
+            $jumlahDibayarSebelumnya = $transaksi->jumlah_dibayar;
+            
+            // Update jumlah yang dibayar
+            $totalDibayar = $jumlahDibayarSebelumnya + $jumlahDibayarBaru;
+            $sisaPembayaran = $transaksi->total_harga - $totalDibayar;
+            
+            // Pastikan tidak ada pembayaran berlebihan
+            if ($sisaPembayaran < 0) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Jumlah pembayaran melebihi total transaksi'
+                ], 422);
+            }
+            
+            // Jika ditandai lunas, pastikan total dibayar sama dengan total harga
+            if ($request->status_pembayaran === 'lunas' && $sisaPembayaran > 0) {
+                $totalDibayar = $transaksi->total_harga;
+                $sisaPembayaran = 0;
+            }
+            
+            $transaksi->jumlah_dibayar = $totalDibayar;
+            $transaksi->sisa_pembayaran = $sisaPembayaran;
+            $transaksi->tanggal_pembayaran = $request->tanggal_pembayaran;
+            $transaksi->status_pembayaran = $request->status_pembayaran;
+            
+            if ($request->has('catatan') && !empty($request->catatan)) {
+                $catatanBaru = $request->catatan;
+                $transaksi->catatan = $transaksi->catatan 
+                    ? $transaksi->catatan . "\n[" . date('Y-m-d H:i') . "] Pembayaran: " . $catatanBaru
+                    : "[" . date('Y-m-d H:i') . "] Pembayaran: " . $catatanBaru;
+            }
+            
+            $transaksi->save();
+            
+            DB::commit();
+            
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Pembayaran berhasil dicatat',
+                'data' => $transaksi
+            ]);
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal menyimpan pembayaran: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

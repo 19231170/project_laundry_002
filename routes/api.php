@@ -52,6 +52,7 @@ Route::prefix('v1')->group(function () {
         Route::get('laba-rugi', [LaporanController::class, 'getLaporanLabaRugi']);
         Route::get('penggunaan-bahan', [LaporanController::class, 'getLaporanPenggunaanBahan']);
         Route::get('pengeluaran-per-kategori', [LaporanController::class, 'getLaporanPengeluaranPerKategori']);
+        Route::get('pembulatan', [LaporanController::class, 'getLaporanPembulatan']);
         
         // Export routes
         Route::get('export/transaksi', [LaporanController::class, 'exportTransaksi']);
@@ -62,6 +63,7 @@ Route::prefix('v1')->group(function () {
         Route::get('export/laporan-harian', [LaporanController::class, 'exportLaporanHarian']);
         Route::get('export/laporan-mingguan', [LaporanController::class, 'exportLaporanMingguan']);
         Route::get('export/laporan-bulanan', [LaporanController::class, 'exportLaporanBulanan']);
+        Route::get('export/pembulatan', [LaporanController::class, 'exportPembulatan']);
         
         // Import routes
         Route::post('import/transaksi', [LaporanController::class, 'importTransaksi']);
