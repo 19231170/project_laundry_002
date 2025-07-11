@@ -681,4 +681,288 @@ class LaporanController extends Controller
             ]
         ]);
     }
+
+    /**
+     * Export laporan laba rugi
+     */
+    public function exportLabaRugi(Request $request)
+    {
+        $tanggalMulai = $request->input('tanggal_mulai');
+        $tanggalAkhir = $request->input('tanggal_akhir');
+        
+        if (!$tanggalMulai) {
+            $tanggalMulai = Carbon::now()->startOfMonth()->format('Y-m-d');
+        }
+        
+        if (!$tanggalAkhir) {
+            $tanggalAkhir = Carbon::now()->endOfMonth()->format('Y-m-d');
+        }
+
+        $data = $this->getLaporanLabaRugiData($tanggalMulai, $tanggalAkhir);
+        
+        $fileName = 'laporan_laba_rugi_' . $tanggalMulai . '_sd_' . $tanggalAkhir . '.xlsx';
+        
+        return Excel::download(new LabaRugiExport($data, $tanggalMulai, $tanggalAkhir), $fileName);
+    }
+
+    /**
+     * Export laporan penggunaan bahan
+     */
+    public function exportPenggunaanBahan(Request $request)
+    {
+        $tanggalMulai = $request->input('tanggal_mulai');
+        $tanggalAkhir = $request->input('tanggal_akhir');
+        
+        if (!$tanggalMulai) {
+            $tanggalMulai = Carbon::now()->startOfMonth()->format('Y-m-d');
+        }
+        
+        if (!$tanggalAkhir) {
+            $tanggalAkhir = Carbon::now()->endOfMonth()->format('Y-m-d');
+        }
+
+        $data = $this->getLaporanPenggunaanBahanData($tanggalMulai, $tanggalAkhir);
+        
+        $fileName = 'laporan_penggunaan_bahan_' . $tanggalMulai . '_sd_' . $tanggalAkhir . '.xlsx';
+        
+        return Excel::download(new PenggunaanBahanExport($data, $tanggalMulai, $tanggalAkhir), $fileName);
+    }
+
+    /**
+     * Export laporan pengeluaran per kategori
+     */
+    public function exportPengeluaranPerKategori(Request $request)
+    {
+        $tanggalMulai = $request->input('tanggal_mulai');
+        $tanggalAkhir = $request->input('tanggal_akhir');
+        
+        if (!$tanggalMulai) {
+            $tanggalMulai = Carbon::now()->startOfMonth()->format('Y-m-d');
+        }
+        
+        if (!$tanggalAkhir) {
+            $tanggalAkhir = Carbon::now()->endOfMonth()->format('Y-m-d');
+        }
+
+        $data = $this->getLaporanPengeluaranPerKategoriData($tanggalMulai, $tanggalAkhir);
+        
+        $fileName = 'laporan_pengeluaran_kategori_' . $tanggalMulai . '_sd_' . $tanggalAkhir . '.xlsx';
+        
+        return Excel::download(new PengeluaranKategoriExport($data, $tanggalMulai, $tanggalAkhir), $fileName);
+    }
+
+    /**
+     * Helper for preparing data for laporan laba rugi
+     */
+    private function getLaporanLabaRugiData($tanggalMulai, $tanggalAkhir)
+    {
+        // Get pemasukan data
+        $pemasukan = Transaksi::with(['customer'])
+            ->whereBetween('tanggal', [$tanggalMulai, $tanggalAkhir])
+            ->where('status', 'selesai')
+            ->get();
+            
+        $totalPemasukan = $pemasukan->sum('total');
+        
+        // Get pengeluaran data
+        $pengeluaran = Pengeluaran::with(['kategori_pengeluaran', 'supplier', 'detail_pengeluaran'])
+            ->whereBetween('tanggal', [$tanggalMulai, $tanggalAkhir])
+            ->get();
+            
+        $totalPengeluaran = $pengeluaran->sum('total');
+        
+        // Calculate profit/loss
+        $labaRugi = $totalPemasukan - $totalPengeluaran;
+        
+        // Group pengeluaran by category for the chart
+        $pengeluaranByCategory = $pengeluaran->groupBy('kategori_pengeluaran.nama')
+            ->map(function ($items, $kategori) {
+                return [
+                    'kategori' => $kategori ?? 'Tanpa Kategori',
+                    'total' => $items->sum('total')
+                ];
+            })->values();
+            
+        // Prepare monthly data for trend chart
+        $startDate = Carbon::parse($tanggalMulai)->startOfMonth();
+        $endDate = Carbon::parse($tanggalAkhir)->endOfMonth();
+        
+        $monthlyData = [];
+        $currentDate = $startDate->copy();
+        
+        while ($currentDate <= $endDate) {
+            $monthYear = $currentDate->format('M Y');
+            $monthStart = $currentDate->format('Y-m-d');
+            $monthEnd = $currentDate->copy()->endOfMonth()->format('Y-m-d');
+            
+            $monthPemasukan = Transaksi::whereBetween('tanggal', [$monthStart, $monthEnd])
+                ->where('status', 'selesai')
+                ->sum('total');
+                
+            $monthPengeluaran = Pengeluaran::whereBetween('tanggal', [$monthStart, $monthEnd])
+                ->sum('total');
+                
+            $monthlyData[] = [
+                'bulan' => $monthYear,
+                'pemasukan' => $monthPemasukan,
+                'pengeluaran' => $monthPengeluaran,
+                'laba' => $monthPemasukan - $monthPengeluaran
+            ];
+            
+            $currentDate->addMonth();
+        }
+        
+        return [
+            'summary' => [
+                'total_pemasukan' => $totalPemasukan,
+                'total_pengeluaran' => $totalPengeluaran,
+                'laba_rugi' => $labaRugi,
+                'persentase_laba' => $totalPemasukan > 0 ? round(($labaRugi / $totalPemasukan) * 100, 2) : 0
+            ],
+            'pemasukan' => $pemasukan,
+            'pengeluaran' => $pengeluaran,
+            'pengeluaran_by_category' => $pengeluaranByCategory,
+            'monthly_data' => $monthlyData,
+            'periode' => [
+                'mulai' => $tanggalMulai,
+                'akhir' => $tanggalAkhir
+            ]
+        ];
+    }
+
+    /**
+     * Helper for preparing data for laporan penggunaan bahan
+     */
+    private function getLaporanPenggunaanBahanData($tanggalMulai, $tanggalAkhir)
+    {
+        // Get all inventory items that were used in transactions during this period
+        $detailPengeluaran = DetailPengeluaran::whereHas('pengeluaran', function($query) use ($tanggalMulai, $tanggalAkhir) {
+                $query->whereBetween('tanggal', [$tanggalMulai, $tanggalAkhir]);
+            })
+            ->with(['pengeluaran', 'pengeluaran.kategori_pengeluaran'])
+            ->get();
+            
+        // Group by item name
+        $bahanByName = $detailPengeluaran->groupBy('nama')
+            ->map(function ($items, $nama) {
+                $totalQty = $items->sum('qty');
+                $totalNilai = $items->sum(function ($item) {
+                    return $item->qty * $item->harga;
+                });
+                
+                $kategoriList = $items->pluck('pengeluaran.kategori_pengeluaran.nama')->unique()->filter()->implode(', ');
+                
+                return [
+                    'nama' => $nama,
+                    'kategori' => $kategoriList ?: 'Tanpa Kategori',
+                    'qty' => $totalQty,
+                    'total_nilai' => $totalNilai,
+                    'rata_harga' => $totalQty > 0 ? $totalNilai / $totalQty : 0
+                ];
+            })->values()->sortByDesc('total_nilai')->values();
+            
+        // Calculate totals
+        $totalNilaiBahan = $bahanByName->sum('total_nilai');
+        
+        // Get inventory items with low stock
+        $lowStockItems = Inventaris::whereRaw('stok < stok_minimum')
+            ->with('kategori_pengeluaran')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'nama' => $item->nama,
+                    'kategori' => $item->kategori_pengeluaran->nama ?? 'Tanpa Kategori',
+                    'stok' => $item->stok,
+                    'stok_minimum' => $item->stok_minimum,
+                    'satuan' => $item->satuan,
+                    'status' => $item->stok <= 0 ? 'Habis' : 'Rendah'
+                ];
+            });
+            
+        return [
+            'bahan_by_name' => $bahanByName,
+            'total_nilai_bahan' => $totalNilaiBahan,
+            'low_stock_items' => $lowStockItems,
+            'periode' => [
+                'mulai' => $tanggalMulai,
+                'akhir' => $tanggalAkhir
+            ]
+        ];
+    }
+
+    /**
+     * Helper for preparing data for laporan pengeluaran per kategori
+     */
+    private function getLaporanPengeluaranPerKategoriData($tanggalMulai, $tanggalAkhir)
+    {
+        // Get all categories with pengeluaran
+        $kategoriList = KategoriPengeluaran::with(['pengeluaran' => function ($query) use ($tanggalMulai, $tanggalAkhir) {
+                $query->whereBetween('tanggal', [$tanggalMulai, $tanggalAkhir]);
+            }])
+            ->get();
+            
+        // Calculate total for each category and prepare data
+        $kategoriData = $kategoriList->map(function ($kategori) {
+            $totalPengeluaran = $kategori->pengeluaran->sum('total');
+            $jumlahTransaksi = $kategori->pengeluaran->count();
+            
+            return [
+                'id' => $kategori->id,
+                'nama' => $kategori->nama,
+                'deskripsi' => $kategori->deskripsi,
+                'total_pengeluaran' => $totalPengeluaran,
+                'jumlah_transaksi' => $jumlahTransaksi
+            ];
+        })->sortByDesc('total_pengeluaran')->values();
+        
+        // Calculate grand total
+        $totalPengeluaran = $kategoriData->sum('total_pengeluaran');
+        
+        // Add percentage to each category
+        $kategoriData = $kategoriData->map(function ($item) use ($totalPengeluaran) {
+            $item['persentase'] = $totalPengeluaran > 0 ? round(($item['total_pengeluaran'] / $totalPengeluaran) * 100, 2) : 0;
+            return $item;
+        });
+        
+        // Get details for each category
+        $detailByKategori = [];
+        
+        foreach ($kategoriList as $kategori) {
+            if ($kategori->pengeluaran->count() > 0) {
+                $pengeluaranList = $kategori->pengeluaran->map(function ($p) {
+                    return [
+                        'id' => $p->id,
+                        'tanggal' => $p->tanggal,
+                        'kode' => $p->kode,
+                        'keterangan' => $p->keterangan,
+                        'supplier' => $p->supplier->nama ?? null,
+                        'total' => $p->total,
+                        'detail_items' => $p->detail_pengeluaran->map(function ($item) {
+                            return [
+                                'nama' => $item->nama,
+                                'qty' => $item->qty,
+                                'harga' => $item->harga,
+                                'subtotal' => $item->qty * $item->harga
+                            ];
+                        })
+                    ];
+                });
+                
+                $detailByKategori[$kategori->id] = [
+                    'kategori' => $kategori->nama,
+                    'pengeluaran' => $pengeluaranList
+                ];
+            }
+        }
+        
+        return [
+            'kategori_data' => $kategoriData,
+            'detail_by_kategori' => $detailByKategori,
+            'total_pengeluaran' => $totalPengeluaran,
+            'periode' => [
+                'mulai' => $tanggalMulai,
+                'akhir' => $tanggalAkhir
+            ]
+        ];
+    }
 }

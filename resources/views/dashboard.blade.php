@@ -73,7 +73,7 @@
                     </div>
                 </div>
             </div>
-
+            
             <!-- Quick Actions -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
@@ -129,6 +129,7 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === 'success') {
+                        // Basic stats
                         document.getElementById('total-pelanggan').textContent = data.data.total_pelanggan;
                         document.getElementById('transaksi-hari-ini').textContent = data.data.hari_ini.transaksi;
                         document.getElementById('pendapatan-hari-ini').textContent = 'Rp ' + new Intl.NumberFormat('id-ID').format(data.data.hari_ini.pendapatan);

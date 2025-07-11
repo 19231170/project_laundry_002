@@ -68,6 +68,36 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('export-excel', [LaporanWebController::class, 'exportExcel'])->name('export-excel');
         Route::get('export-pdf', [LaporanWebController::class, 'exportPdf'])->name('export-pdf');
     });
+    
+    // Expense Management Routes
+    Route::get('/pengeluaran', function () {
+        return view('pengeluaran.index');
+    })->middleware(['auth', 'verified'])->name('pengeluaran');
+    
+    Route::get('/pengeluaran/kategori', function () {
+        return view('pengeluaran.kategori');
+    })->middleware(['auth', 'verified'])->name('pengeluaran.kategori');
+    
+    Route::get('/pengeluaran/supplier', function () {
+        return view('pengeluaran.supplier');
+    })->middleware(['auth', 'verified'])->name('pengeluaran.supplier');
+    
+    Route::get('/pengeluaran/inventaris', function () {
+        return view('pengeluaran.inventaris');
+    })->middleware(['auth', 'verified'])->name('pengeluaran.inventaris');
+    
+    // Report Routes
+    Route::get('/laporan/laba-rugi', function () {
+        return view('laporan.laba-rugi');
+    })->middleware(['auth', 'verified'])->name('laporan.laba-rugi');
+    
+    Route::get('/laporan/penggunaan-bahan', function () {
+        return view('laporan.penggunaan-bahan');
+    })->middleware(['auth', 'verified'])->name('laporan.penggunaan-bahan');
+    
+    Route::get('/laporan/pengeluaran-kategori', function () {
+        return view('laporan.pengeluaran-kategori');
+    })->middleware(['auth', 'verified'])->name('laporan.pengeluaran-kategori');
 });
 
 Route::middleware('auth')->group(function () {
