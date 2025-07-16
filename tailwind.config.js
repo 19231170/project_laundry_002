@@ -8,6 +8,7 @@ export default {
         './storage/framework/views/*.php',
         './resources/views/**/*.blade.php',
     ],
+    darkMode: 'class', // Explicitly set to class-based mode
 
     safelist: [
     'bg-red-500',

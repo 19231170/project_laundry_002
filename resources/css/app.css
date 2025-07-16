@@ -1,3 +1,22 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+    /* Custom sidebar styles */
+    .sidebar-link {
+        @apply flex items-center px-6 py-2 rounded-lg font-medium transition duration-150 ease-in-out;
+    }
+
+    .sidebar-link:not(.active) {
+        @apply text-gray-600 hover:text-gray-900 hover:bg-gray-100;
+    }
+
+    .sidebar-link.active {
+        @apply text-white bg-indigo-600;
+    }
+
+    .sidebar-dropdown-title {
+        @apply flex items-center justify-between p-2 rounded-lg cursor-pointer hover:bg-gray-100 font-medium text-sm text-gray-700;
+    }
+}
