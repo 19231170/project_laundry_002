@@ -10,7 +10,7 @@
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
             <div class="p-6 text-gray-900">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-semibold">Laporan Laundry</h2>
+                    <h2 class="text-2xl font-semibold">Laporan pemasukan Laundry</h2>
                 </div>
 
                 <!-- Filter Form -->
@@ -144,7 +144,7 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        Rp {{ number_format($t->total_harga, 0, ',', '.') }}
+                                        Rp {{ number_format($t->total_setelah_pembulatan, 0, ',', '.') }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <a href="{{ route('transaksi.show', $t->id) }}" class="text-blue-600 hover:text-blue-900">

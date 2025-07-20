@@ -82,7 +82,7 @@
     </div>
 
     <!-- Form Modal -->
-    <div id="formModal" class="fixed inset-0 z-50 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div id="formModal" class="fixed inset-0 z-[100] overflow-y-auto hidden" style="display: none;" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
@@ -97,12 +97,12 @@
 
                                 <div class="mb-4">
                                     <label for="nama" class="block text-sm font-medium text-gray-700 mb-1">Nama Item*</label>
-                                    <input type="text" name="nama" id="nama" class="w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" required>
+                                    <input type="text" name="nama_barang" id="nama" class="w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" required>
                                 </div>
 
                                 <div class="mb-4">
                                     <label for="kategori_pengeluaran_id" class="block text-sm font-medium text-gray-700 mb-1">Kategori*</label>
-                                    <select name="kategori_pengeluaran_id" id="kategori_pengeluaran_id" class="w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" required>
+                                    <select name="kategori_id" id="kategori_pengeluaran_id" class="w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" required>
                                         <option value="">Pilih Kategori</option>
                                     </select>
                                 </div>
@@ -115,11 +115,11 @@
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                     <div>
                                         <label for="stok" class="block text-sm font-medium text-gray-700 mb-1">Stok Saat Ini*</label>
-                                        <input type="number" name="stok" id="stok" class="w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" min="0" required>
+                                        <input type="number" name="jumlah_stok" id="stok" class="w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" min="0" required>
                                     </div>
                                     <div>
                                         <label for="stok_minimum" class="block text-sm font-medium text-gray-700 mb-1">Stok Minimum*</label>
-                                        <input type="number" name="stok_minimum" id="stok_minimum" class="w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" min="0" required>
+                                        <input type="number" name="minimal_stok" id="stok_minimum" class="w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" min="0" required>
                                     </div>
                                 </div>
 
@@ -205,7 +205,7 @@
     @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const apiBaseUrl = '/api';
+            const apiBaseUrl = '/api/v1';
             let currentPage = 1;
             let lastPage = 1;
             let filterData = {
@@ -220,7 +220,7 @@
 
             // Event listeners for filter controls
             document.getElementById('btnFilter').addEventListener('click', function() {
-                filterData.nama = document.getElementById('filterNama').value;
+                filterData.nama_barang = document.getElementById('filterNama').value;
                 filterData.status = document.getElementById('filterStok').value;
                 filterData.page = 1;
                 loadInventarisData();
@@ -280,7 +280,15 @@
             function loadKategoriOptions() {
                 fetch(`${apiBaseUrl}/kategori-pengeluaran`)
                     .then(response => response.json())
-                    .then(data => {
+                    .then(response => {
+                        // Handle the response structure correctly
+                        let kategoriData = response;
+                        
+                        // Check if the response has a 'data' property (API might return {status: 'success', data: [...]}
+                        if (response.data) {
+                            kategoriData = response.data;
+                        }
+                        
                         const select = document.getElementById('kategori_pengeluaran_id');
                         
                         // Clear existing options except the first one
@@ -288,9 +296,10 @@
                             select.remove(1);
                         }
                         
-                        // Add new options
-                        data.forEach(kategori => {
-                            const option = new Option(kategori.nama, kategori.id);
+                        // Add new options - handle both name fields (nama or nama_kategori)
+                        kategoriData.forEach(kategori => {
+                            const namaValue = kategori.nama_kategori || kategori.nama;
+                            const option = new Option(namaValue, kategori.id);
                             select.add(option);
                         });
                     })
@@ -306,88 +315,115 @@
                 tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4">Loading data...</td></tr>';
 
                 const params = new URLSearchParams();
-                if (filterData.nama) params.append('nama', filterData.nama);
+                if (filterData.nama_barang) params.append('nama_barang', filterData.nama_barang);
                 if (filterData.status) params.append('status', filterData.status);
                 params.append('page', filterData.page);
 
                 fetch(`${apiBaseUrl}/inventaris?${params.toString()}`)
                     .then(response => response.json())
-                    .then(data => {
-                        currentPage = data.current_page;
-                        lastPage = data.last_page;
-                        
-                        // Update pagination info
-                        document.getElementById('fromData').textContent = data.from || 0;
-                        document.getElementById('toData').textContent = data.to || 0;
-                        document.getElementById('totalData').textContent = data.total;
-                        
-                        // Enable/disable pagination buttons
-                        document.getElementById('prevPage').disabled = currentPage === 1;
-                        document.getElementById('prevPage').classList.toggle('opacity-50', currentPage === 1);
-                        document.getElementById('nextPage').disabled = currentPage === lastPage;
-                        document.getElementById('nextPage').classList.toggle('opacity-50', currentPage === lastPage);
-                        
-                        // Render table rows
-                        tbody.innerHTML = '';
-                        
-                        if (data.data.length === 0) {
-                            tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4">Tidak ada data</td></tr>';
-                            return;
+                    .then(response => {
+                        if (response.status !== 'success') {
+                            throw new Error('Failed to load data');
                         }
                         
-                        data.data.forEach((item, index) => {
-                            const row = document.createElement('tr');
-                            row.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+                        const data = response.data;
+                        // If pagination is implemented in the API
+                        if (data.current_page) {
+                            currentPage = data.current_page;
+                            lastPage = data.last_page;
                             
-                            // Determine status and class
-                            let statusText, statusClass;
-                            if (item.stok <= 0) {
-                                statusText = 'Habis';
-                                statusClass = 'bg-red-100 text-red-800';
-                            } else if (item.stok < item.stok_minimum) {
-                                statusText = 'Rendah';
-                                statusClass = 'bg-yellow-100 text-yellow-800';
-                            } else {
-                                statusText = 'Tersedia';
-                                statusClass = 'bg-green-100 text-green-800';
-                            }
+                            // Update pagination info
+                            document.getElementById('fromData').textContent = data.from || 0;
+                            document.getElementById('toData').textContent = data.to || 0;
+                            document.getElementById('totalData').textContent = data.total;
                             
-                            row.innerHTML = `
-                                <td class="py-3 px-4">${data.from + index}</td>
-                                <td class="py-3 px-4">${item.nama}</td>
-                                <td class="py-3 px-4">${item.kategori_pengeluaran?.nama || '-'}</td>
-                                <td class="py-3 px-4 text-center">${item.satuan}</td>
-                                <td class="py-3 px-4 text-center">${item.stok}</td>
-                                <td class="py-3 px-4 text-center">${item.stok_minimum}</td>
-                                <td class="py-3 px-4 text-center">
-                                    <span class="px-2 py-1 rounded-full text-xs font-medium ${statusClass}">
-                                        ${statusText}
-                                    </span>
-                                </td>
-                                <td class="py-3 px-4 text-center">
-                                    <button class="text-blue-500 hover:text-blue-700 mr-2 btnAdjust" data-id="${item.id}" title="Adjust Stok">
-                                        <i class="fas fa-sync-alt"></i>
-                                    </button>
-                                    <button class="text-yellow-500 hover:text-yellow-700 mr-2 btnEdit" data-id="${item.id}" title="Edit">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="text-red-500 hover:text-red-700 btnHapus" data-id="${item.id}" title="Hapus">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
-                            `;
+                            // Enable/disable pagination buttons
+                            document.getElementById('prevPage').disabled = currentPage === 1;
+                            document.getElementById('prevPage').classList.toggle('opacity-50', currentPage === 1);
+                            document.getElementById('nextPage').disabled = currentPage === lastPage;
+                            document.getElementById('nextPage').classList.toggle('opacity-50', currentPage === lastPage);
                             
-                            tbody.appendChild(row);
-                        });
-                        
-                        // Add event listeners to action buttons
-                        addActionButtonListeners();
+                            renderInventarisTable(data.data, data.from);
+                        } else {
+                            // For non-paginated data
+                            const items = Array.isArray(data) ? data : [data];
+                            renderInventarisTable(items, 1);
+                            
+                            // Update pagination info for non-paginated data
+                            document.getElementById('fromData').textContent = items.length > 0 ? 1 : 0;
+                            document.getElementById('toData').textContent = items.length;
+                            document.getElementById('totalData').textContent = items.length;
+                            
+                            // Disable pagination for non-paginated data
+                            document.getElementById('prevPage').disabled = true;
+                            document.getElementById('prevPage').classList.add('opacity-50');
+                            document.getElementById('nextPage').disabled = true;
+                            document.getElementById('nextPage').classList.add('opacity-50');
+                        }
                     })
                     .catch(error => {
                         console.error('Error loading inventaris data:', error);
                         tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-red-500">Gagal memuat data</td></tr>';
                         Swal.fire('Error', 'Gagal memuat data inventaris', 'error');
                     });
+            }
+
+            function renderInventarisTable(items, startIndex) {
+                const tbody = document.querySelector('#tableInventaris tbody');
+                tbody.innerHTML = '';
+                
+                if (items.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4">Tidak ada data</td></tr>';
+                    return;
+                }
+                
+                items.forEach((item, index) => {
+                    const row = document.createElement('tr');
+                    row.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+                    
+                    // Determine status and class
+                    let statusText, statusClass;
+                    if (item.jumlah_stok <= 0) {
+                        statusText = 'Habis';
+                        statusClass = 'bg-red-100 text-red-800';
+                    } else if (item.jumlah_stok < item.minimal_stok) {
+                        statusText = 'Rendah';
+                        statusClass = 'bg-yellow-100 text-yellow-800';
+                    } else {
+                        statusText = 'Tersedia';
+                        statusClass = 'bg-green-100 text-green-800';
+                    }
+                    
+                    row.innerHTML = `
+                        <td class="py-3 px-4">${(startIndex || 1) + index}</td>
+                        <td class="py-3 px-4">${item.nama_barang}</td>
+                        <td class="py-3 px-4">${item.kategori_pengeluaran?.nama_kategori || '-'}</td>
+                        <td class="py-3 px-4 text-center">${item.satuan}</td>
+                        <td class="py-3 px-4 text-center">${item.jumlah_stok}</td>
+                        <td class="py-3 px-4 text-center">${item.minimal_stok}</td>
+                        <td class="py-3 px-4 text-center">
+                            <span class="px-2 py-1 rounded-full text-xs font-medium ${statusClass}">
+                                ${statusText}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <button class="text-blue-500 hover:text-blue-700 mr-2 btnAdjust" data-id="${item.id}" title="Adjust Stok">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                            <button class="text-yellow-500 hover:text-yellow-700 mr-2 btnEdit" data-id="${item.id}" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="text-red-500 hover:text-red-700 btnHapus" data-id="${item.id}" title="Hapus">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    
+                    tbody.appendChild(row);
+                });
+                
+                // Add event listeners to action buttons
+                addActionButtonListeners();
             }
 
             // Add event listeners to action buttons
@@ -423,8 +459,8 @@
                     .then(response => response.json())
                     .then(data => {
                         document.getElementById('adjustInventarisId').value = data.id;
-                        document.getElementById('adjustNamaItem').textContent = data.nama;
-                        document.getElementById('adjustStokSaatIni').textContent = `${data.stok} ${data.satuan}`;
+                        document.getElementById('adjustNamaItem').textContent = data.nama_barang;
+                        document.getElementById('adjustStokSaatIni').textContent = `${data.jumlah_stok} ${data.satuan}`;
                         document.getElementById('adjustmentType').value = 'add';
                         document.getElementById('adjustmentValue').value = '';
                         document.getElementById('adjustmentNotes').value = '';
@@ -446,16 +482,21 @@
             function editInventaris(id) {
                 fetch(`${apiBaseUrl}/inventaris/${id}`)
                     .then(response => response.json())
-                    .then(data => {
-                        openFormModal('Edit Inventaris');
-                        
-                        document.getElementById('inventarisId').value = data.id;
-                        document.getElementById('nama').value = data.nama;
-                        document.getElementById('kategori_pengeluaran_id').value = data.kategori_pengeluaran_id;
-                        document.getElementById('satuan').value = data.satuan;
-                        document.getElementById('stok').value = data.stok;
-                        document.getElementById('stok_minimum').value = data.stok_minimum;
-                        document.getElementById('deskripsi').value = data.deskripsi || '';
+                    .then(response => {
+                        if (response.status === 'success' && response.data) {
+                            const data = response.data;
+                            openFormModal('Edit Inventaris');
+                            
+                            document.getElementById('inventarisId').value = data.id;
+                            document.getElementById('nama').value = data.nama_barang;
+                            document.getElementById('kategori_pengeluaran_id').value = data.kategori_id;
+                            document.getElementById('satuan').value = data.satuan;
+                            document.getElementById('stok').value = data.jumlah_stok;
+                            document.getElementById('stok_minimum').value = data.minimal_stok;
+                            document.getElementById('deskripsi').value = data.deskripsi || '';
+                        } else {
+                            throw new Error('Invalid response format');
+                        }
                     })
                     .catch(error => {
                         console.error('Error fetching inventaris data for edit:', error);
@@ -508,11 +549,11 @@
                 
                 // Prepare form data
                 const formData = {
-                    nama: document.getElementById('nama').value,
-                    kategori_pengeluaran_id: document.getElementById('kategori_pengeluaran_id').value,
+                    nama_barang: document.getElementById('nama').value,
+                    kategori_id: document.getElementById('kategori_pengeluaran_id').value,
                     satuan: document.getElementById('satuan').value,
-                    stok: document.getElementById('stok').value,
-                    stok_minimum: document.getElementById('stok_minimum').value,
+                    jumlah_stok: document.getElementById('stok').value,
+                    minimal_stok: document.getElementById('stok_minimum').value,
                     deskripsi: document.getElementById('deskripsi').value
                 };
                 
@@ -605,12 +646,18 @@
                 document.getElementById('stok_minimum').value = '';
                 document.getElementById('deskripsi').value = '';
                 
-                document.getElementById('formModal').classList.remove('hidden');
+                const modal = document.getElementById('formModal');
+                modal.classList.remove('hidden');
+                modal.style.display = 'block';
+                console.log('Opening modal:', title);
             }
 
             // Function to close form modal
             function closeFormModal() {
-                document.getElementById('formModal').classList.add('hidden');
+                const modal = document.getElementById('formModal');
+                modal.classList.add('hidden');
+                modal.style.display = 'none';
+                console.log('Closing modal');
             }
         });
     </script>

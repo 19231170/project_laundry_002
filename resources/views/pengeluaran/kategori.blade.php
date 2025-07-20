@@ -51,7 +51,7 @@
     </div>
 
     <!-- Form Modal -->
-    <div id="formModal" class="fixed inset-0 z-50 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div id="formModal" class="fixed inset-0 z-[100] overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
@@ -93,7 +93,7 @@
     @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const apiBaseUrl = '/api';
+            const apiBaseUrl = '/api/v1';
             let currentPage = 1;
             let lastPage = 1;
             let filterData = {
@@ -143,58 +143,87 @@
 
                 fetch(`${apiBaseUrl}/kategori-pengeluaran?${params.toString()}`)
                     .then(response => response.json())
-                    .then(data => {
-                        currentPage = data.current_page;
-                        lastPage = data.last_page;
-                        
-                        // Update pagination info
-                        document.getElementById('fromData').textContent = data.from || 0;
-                        document.getElementById('toData').textContent = data.to || 0;
-                        document.getElementById('totalData').textContent = data.total;
-                        
-                        // Enable/disable pagination buttons
-                        document.getElementById('prevPage').disabled = currentPage === 1;
-                        document.getElementById('prevPage').classList.toggle('opacity-50', currentPage === 1);
-                        document.getElementById('nextPage').disabled = currentPage === lastPage;
-                        document.getElementById('nextPage').classList.toggle('opacity-50', currentPage === lastPage);
-                        
-                        // Render table rows
-                        tbody.innerHTML = '';
-                        
-                        if (data.data.length === 0) {
-                            tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4">Tidak ada data</td></tr>';
-                            return;
+                    .then(response => {
+                        if (response.status !== 'success') {
+                            throw new Error('Failed to load data');
                         }
                         
-                        data.data.forEach((item, index) => {
-                            const row = document.createElement('tr');
-                            row.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+                        const data = response.data;
+                        // If pagination is implemented in the API
+                        if (data.current_page) {
+                            currentPage = data.current_page;
+                            lastPage = data.last_page;
                             
-                            row.innerHTML = `
-                                <td class="py-3 px-4">${data.from + index}</td>
-                                <td class="py-3 px-4">${item.nama}</td>
-                                <td class="py-3 px-4">${item.deskripsi || '-'}</td>
-                                <td class="py-3 px-4 text-center">
-                                    <button class="text-yellow-500 hover:text-yellow-700 mr-2 btnEdit" data-id="${item.id}">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="text-red-500 hover:text-red-700 btnHapus" data-id="${item.id}">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
-                            `;
+                            // Update pagination info
+                            document.getElementById('fromData').textContent = data.from || 0;
+                            document.getElementById('toData').textContent = data.to || 0;
+                            document.getElementById('totalData').textContent = data.total;
                             
-                            tbody.appendChild(row);
-                        });
-                        
-                        // Add event listeners to action buttons
-                        addActionButtonListeners();
+                            // Enable/disable pagination buttons
+                            document.getElementById('prevPage').disabled = currentPage === 1;
+                            document.getElementById('prevPage').classList.toggle('opacity-50', currentPage === 1);
+                            document.getElementById('nextPage').disabled = currentPage === lastPage;
+                            document.getElementById('nextPage').classList.toggle('opacity-50', currentPage === lastPage);
+                            
+                            // For paginated data
+                            renderTableData(data.data, data.from);
+                        } else {
+                            // For non-paginated data
+                            const items = Array.isArray(data) ? data : [data];
+                            renderTableData(items, 1);
+                            
+                            // Update pagination info for non-paginated data
+                            document.getElementById('fromData').textContent = items.length > 0 ? 1 : 0;
+                            document.getElementById('toData').textContent = items.length;
+                            document.getElementById('totalData').textContent = items.length;
+                            
+                            // Disable pagination for non-paginated data
+                            document.getElementById('prevPage').disabled = true;
+                            document.getElementById('prevPage').classList.add('opacity-50');
+                            document.getElementById('nextPage').disabled = true;
+                            document.getElementById('nextPage').classList.add('opacity-50');
+                        }
                     })
                     .catch(error => {
                         console.error('Error loading kategori data:', error);
                         tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-red-500">Gagal memuat data</td></tr>';
                         Swal.fire('Error', 'Gagal memuat data kategori pengeluaran', 'error');
                     });
+            }
+
+            // Function to render table data
+            function renderTableData(items, startIndex) {
+                const tbody = document.querySelector('#tableKategori tbody');
+                tbody.innerHTML = '';
+                
+                if (items.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4">Tidak ada data</td></tr>';
+                    return;
+                }
+                
+                items.forEach((item, index) => {
+                    const row = document.createElement('tr');
+                    row.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+                    
+                    row.innerHTML = `
+                        <td class="py-3 px-4">${(startIndex || 1) + index}</td>
+                        <td class="py-3 px-4">${item.nama_kategori}</td>
+                        <td class="py-3 px-4">${item.deskripsi || '-'}</td>
+                        <td class="py-3 px-4 text-center">
+                            <button class="text-yellow-500 hover:text-yellow-700 mr-2 btnEdit" data-id="${item.id}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="text-red-500 hover:text-red-700 btnHapus" data-id="${item.id}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    
+                    tbody.appendChild(row);
+                });
+                
+                // Add event listeners to action buttons
+                addActionButtonListeners();
             }
 
             // Add event listeners to action buttons
@@ -220,12 +249,17 @@
             function editKategori(id) {
                 fetch(`${apiBaseUrl}/kategori-pengeluaran/${id}`)
                     .then(response => response.json())
-                    .then(data => {
-                        openFormModal('Edit Kategori Pengeluaran');
-                        
-                        document.getElementById('kategoriId').value = data.id;
-                        document.getElementById('nama').value = data.nama;
-                        document.getElementById('deskripsi').value = data.deskripsi || '';
+                    .then(response => {
+                        if (response.status === 'success' && response.data) {
+                            const data = response.data;
+                            openFormModal('Edit Kategori Pengeluaran');
+                            
+                            document.getElementById('kategoriId').value = data.id;
+                            document.getElementById('nama').value = data.nama_kategori;
+                            document.getElementById('deskripsi').value = data.deskripsi || '';
+                        } else {
+                            throw new Error('Invalid response format');
+                        }
                     })
                     .catch(error => {
                         console.error('Error fetching kategori data for edit:', error);
@@ -278,8 +312,9 @@
                 
                 // Prepare form data
                 const formData = {
-                    nama: document.getElementById('nama').value,
-                    deskripsi: document.getElementById('deskripsi').value
+                    nama_kategori: document.getElementById('nama').value,
+                    deskripsi: document.getElementById('deskripsi').value,
+                    is_active: true
                 };
                 
                 // Submit form
@@ -320,12 +355,16 @@
                 document.getElementById('nama').value = '';
                 document.getElementById('deskripsi').value = '';
                 
-                document.getElementById('formModal').classList.remove('hidden');
+                const modal = document.getElementById('formModal');
+                modal.classList.remove('hidden');
+                modal.style.display = 'block';
             }
 
             // Function to close form modal
             function closeFormModal() {
-                document.getElementById('formModal').classList.add('hidden');
+                const modal = document.getElementById('formModal');
+                modal.classList.add('hidden');
+                modal.style.display = 'none';
             }
         });
     </script>

@@ -264,5 +264,40 @@ class TransaksiWebController extends Controller
         return $pdf->stream('Struk-' . $transaksi->kode_transaksi . '.pdf');
     }
 
+    /**
+     * Mark transaction as paid/lunas.
+     */
+    public function markAsPaid(Transaksi $transaksi)
+    {
+        DB::beginTransaction();
+        try {
+            // Set the transaction as paid
+            $totalHarga = $transaksi->total_setelah_pembulatan ?: $transaksi->total_harga;
+            
+            $transaksi->update([
+                'status_pembayaran' => 'lunas',
+                'jumlah_dibayar' => $totalHarga,
+                'sisa_pembayaran' => 0,
+                'tanggal_pembayaran' => now()
+            ]);
 
+            // Add a payment note to the transaction
+            $catatanPembayaran = "Pembayaran lunas pada " . now()->format('d/m/Y H:i');
+            $transaksi->update([
+                'catatan' => $transaksi->catatan 
+                    ? $transaksi->catatan . "\n" . $catatanPembayaran 
+                    : $catatanPembayaran
+            ]);
+
+            DB::commit();
+            
+            return redirect()->route('transaksi.index')
+                ->with('success', 'Status pembayaran berhasil diubah menjadi Lunas');
+            
+        } catch (\Exception $e) {
+            DB::rollback();
+            return redirect()->route('transaksi.index')
+                ->with('error', 'Gagal mengubah status pembayaran: ' . $e->getMessage());
+        }
+    }
 }

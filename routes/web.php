@@ -59,6 +59,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         'destroy' => 'transaksi.destroy',
     ]);
     Route::get('transaksi/{id}/struk', [TransaksiWebController::class, 'generateStruk'])->name('transaksi.struk');
+    Route::put('transaksi/{transaksi}/mark-as-paid', [TransaksiWebController::class, 'markAsPaid'])->name('transaksi.mark-as-paid');
 
     
     // Laporan Web Routes

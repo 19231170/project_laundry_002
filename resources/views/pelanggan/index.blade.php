@@ -5,34 +5,34 @@
         </h2>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <div class="py-6">
+        <div class="max-w-full mx-auto sm:px-4 lg:px-6">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-2xl font-semibold">Daftar Pelanggan</h2>
-                        <a href="{{ route('pelanggan.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                            Tambah Pelanggan
+                <div class="p-4 text-gray-900">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold">Daftar Pelanggan</h2>
+                        <a href="{{ route('pelanggan.create') }}" class="inline-flex items-center whitespace-nowrap bg-blue-500 hover:bg-blue-700 text-white py-1.5 px-3 rounded text-sm">
+                            <i class="fas fa-plus"></i><span class="ml-1">Tambah Pelanggan</span>
                         </a>
                     </div>
 
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
+                    <div class="overflow-x-auto bg-white shadow-md rounded-lg" style="max-width: 100%; overflow-x: auto;">
+                        <table class="w-full divide-y divide-gray-200 table-auto text-sm">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-40">
                                         Nama
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
                                         Telepon
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-40">
                                         Email
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28">
                                         Total Transaksi
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-60 min-w-[240px]">
                                         Aksi
                                     </th>
                                 </tr>
@@ -57,21 +57,23 @@
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                             {{ $item->transaksi()->count() }}
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <a href="{{ route('pelanggan.show', $item) }}" class="text-blue-600 hover:text-blue-900 mr-3">
-                                                Detail
-                                            </a>
-                                            <a href="{{ route('pelanggan.edit', $item) }}" class="text-indigo-600 hover:text-indigo-900 mr-3">
-                                                Edit
-                                            </a>
-                                            <form action="{{ route('pelanggan.destroy', $item->id) }}" method="POST" class="inline-block delete-form">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="button" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 delete-btn"
-                                                    data-pelanggan="{{ $item->nama }}">
-                                                    Hapus
-                                                </button>
-                                            </form>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium min-w-[240px]">
+                                            <div class="flex items-center space-x-2">
+                                                <a href="{{ route('pelanggan.show', $item) }}" class="inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded text-xs">
+                                                    <span class="flex items-center"><i class="fas fa-eye"></i><span class="ml-1">Detail</span></span>
+                                                </a>
+                                                <a href="{{ route('pelanggan.edit', $item) }}" class="inline-block bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-1 px-3 rounded text-xs">
+                                                    <span class="flex items-center"><i class="fas fa-edit"></i><span class="ml-1">Edit</span></span>
+                                                </a>
+                                                <form action="{{ route('pelanggan.destroy', $item->id) }}" method="POST" class="inline-block">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="button" class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-3 rounded text-xs delete-btn"
+                                                        data-pelanggan="{{ $item->nama }}">
+                                                        <span class="flex items-center"><i class="fas fa-trash"></i><span class="ml-1">Hapus</span></span>
+                                                    </button>
+                                                </form>
+                                            </div>
                                         </td>
                                     </tr>
                                 @empty
@@ -85,7 +87,7 @@
                         </table>
                     </div>
 
-                    <div class="mt-6">
+                    <div class="mt-8 flex justify-center">
                         {{ $pelanggan->links() }}
                     </div>
                 </div>
@@ -121,7 +123,7 @@
             document.querySelectorAll('.delete-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     const namaPelanggan = this.getAttribute('data-pelanggan');
-                    const form = this.closest('.delete-form');
+                    const form = this.closest('form');
                     
                     Swal.fire({
                         title: 'Hapus Pelanggan?',

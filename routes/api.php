@@ -26,8 +26,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-// Public routes (untuk backend API)
-Route::prefix('v1')->group(function () {
+// API routes with authentication
+Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     // Pelanggan routes
     Route::apiResource('pelanggan', PelangganController::class);
     

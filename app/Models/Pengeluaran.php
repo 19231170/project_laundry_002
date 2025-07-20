@@ -18,6 +18,8 @@ class Pengeluaran extends Model
         'keterangan',
         'bukti_pembayaran',
         'user_id',
+        'supplier_id',
+        'penerima',
     ];
     
     protected $casts = [

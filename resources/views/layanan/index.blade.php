@@ -5,14 +5,14 @@
         </h2>
     </x-slot>
 
-    <div class="py-12">
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <div class="py-6">
+    <div class="max-w-full mx-auto sm:px-4 lg:px-6">
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-            <div class="p-6 text-gray-900">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-semibold">Daftar Layanan</h2>
-                    <a href="{{ route('layanan.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                            Tambah Layanan     
+            <div class="p-4 text-gray-900">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold">Daftar Layanan</h2>
+                    <a href="{{ route('layanan.create') }}" class="inline-flex items-center whitespace-nowrap bg-blue-500 hover:bg-blue-700 text-white py-1.5 px-3 rounded text-sm">
+                        <i class="fas fa-plus"></i><span class="ml-1">Tambah Layanan</span>
                     </a>
                 </div>
 
@@ -43,23 +43,23 @@
                     </script>
                 @endif
 
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
+                <div class="overflow-x-auto bg-white shadow-md rounded-lg" style="max-width: 100%; overflow-x: auto;">
+                    <table class="w-full divide-y divide-gray-200 table-auto text-sm">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-40">
                                     Nama Layanan
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28">
                                     Satuan
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
                                     Harga
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-40">
                                     Deskripsi
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-60 min-w-[240px]">
                                     Aksi
                                 </th>
                             </tr>
@@ -79,21 +79,23 @@
                                     <td class="px-6 py-4 text-sm text-gray-900">
                                         {{ $l->deskripsi ?: '-' }}
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <a href="{{ route('layanan.show', $l->id) }}" class="text-blue-600 hover:text-blue-900 mr-2">
-                                            Detail
-                                        </a>
-                                        <a href="{{ route('layanan.edit', $l->id) }}" class="text-indigo-600 hover:text-indigo-900 mr-2">
-                                            Edit
-                                        </a>
-                                        <form action="{{ route('layanan.destroy', $l->id) }}" method="POST" class="inline-block delete-form">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="button" class="text-red-600 hover:text-red-900 delete-btn" 
-                                                data-layanan="{{ $l->nama_layanan }}">
-                                                Hapus
-                                            </button>
-                                        </form>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium min-w-[240px]">
+                                        <div class="flex items-center space-x-2">
+                                            <a href="{{ route('layanan.show', $l->id) }}" class="inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded text-xs">
+                                                <span class="flex items-center"><i class="fas fa-eye"></i><span class="ml-1">Detail</span></span>
+                                            </a>
+                                            <a href="{{ route('layanan.edit', $l->id) }}" class="inline-block bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-1 px-3 rounded text-xs">
+                                                <span class="flex items-center"><i class="fas fa-edit"></i><span class="ml-1">Edit</span></span>
+                                            </a>
+                                            <form action="{{ route('layanan.destroy', $l->id) }}" method="POST" class="inline-block">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="button" class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-3 rounded text-xs delete-btn" 
+                                                    data-layanan="{{ $l->nama_layanan }}">
+                                                    <span class="flex items-center"><i class="fas fa-trash"></i><span class="ml-1">Hapus</span></span>
+                                                </button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                             @empty
@@ -107,7 +109,7 @@
                     </table>
                 </div>
 
-                <div class="mt-6">
+                <div class="mt-8 flex justify-center">
                     {{ $layanan->links() }}
                 </div>
             </div>
@@ -120,7 +122,7 @@
             document.querySelectorAll('.delete-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     const namaLayanan = this.getAttribute('data-layanan');
-                    const form = this.closest('.delete-form');
+                    const form = this.closest('form');
                     
                     Swal.fire({
                         title: 'Hapus Layanan?',

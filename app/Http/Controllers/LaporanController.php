@@ -137,7 +137,7 @@ class LaporanController extends Controller
         // Format data based on report type
         switch ($request->tipe) {
             case 'harian':
-                $pemasukan = $queryPemasukan->selectRaw('DATE(tanggal_masuk) as periode, SUM(total_harga) as total_pemasukan, COUNT(*) as jumlah_transaksi')
+                $pemasukan = $queryPemasukan->selectRaw('DATE(tanggal_masuk) as periode, SUM(total_setelah_pembulatan) as total_pemasukan, COUNT(*) as jumlah_transaksi')
                     ->groupBy('periode')
                     ->orderBy('periode')
                     ->get()
@@ -151,7 +151,7 @@ class LaporanController extends Controller
                 break;
                 
             case 'bulanan':
-                $pemasukan = $queryPemasukan->selectRaw('DATE_FORMAT(tanggal_masuk, "%Y-%m") as periode, SUM(total_harga) as total_pemasukan, COUNT(*) as jumlah_transaksi')
+                $pemasukan = $queryPemasukan->selectRaw('DATE_FORMAT(tanggal_masuk, "%Y-%m") as periode, SUM(total_setelah_pembulatan) as total_pemasukan, COUNT(*) as jumlah_transaksi')
                     ->groupBy('periode')
                     ->orderBy('periode')
                     ->get()
@@ -165,7 +165,7 @@ class LaporanController extends Controller
                 break;
                 
             case 'tahunan':
-                $pemasukan = $queryPemasukan->selectRaw('YEAR(tanggal_masuk) as periode, SUM(total_harga) as total_pemasukan, COUNT(*) as jumlah_transaksi')
+                $pemasukan = $queryPemasukan->selectRaw('YEAR(tanggal_masuk) as periode, SUM(total_setelah_pembulatan) as total_pemasukan, COUNT(*) as jumlah_transaksi')
                     ->groupBy('periode')
                     ->orderBy('periode')
                     ->get()

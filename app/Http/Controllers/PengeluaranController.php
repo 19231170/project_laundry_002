@@ -47,14 +47,14 @@ class PengeluaranController extends Controller
         $validator = Validator::make($request->all(), [
             'tanggal' => 'required|date',
             'kategori_pengeluaran_id' => 'required|exists:kategori_pengeluaran,id',
+            'supplier_id' => 'nullable|exists:supplier,id',
+            'penerima' => 'nullable|string|max:100',
             'keterangan' => 'nullable|string',
-            'bukti_pembayaran' => 'nullable|image|max:2048', // max 2MB
-            'detail' => 'required|array',
-            'detail.*.nama_item' => 'required|string',
-            'detail.*.jumlah' => 'required|numeric|min:0.01',
-            'detail.*.satuan' => 'required|string',
-            'detail.*.harga_satuan' => 'required|numeric|min:0',
-            'detail.*.supplier_id' => 'nullable|exists:supplier,id',
+            'detail_pengeluaran' => 'required|array',
+            'detail_pengeluaran.*.nama' => 'required|string',
+            'detail_pengeluaran.*.qty' => 'required|numeric|min:1',
+            'detail_pengeluaran.*.harga' => 'required|numeric|min:0',
+            'jumlah_total' => 'required|numeric|min:0',
         ]);
 
         if ($validator->fails()) {
@@ -67,16 +67,13 @@ class PengeluaranController extends Controller
 
         DB::beginTransaction();
         try {
-            // Upload bukti pembayaran jika ada
-            $buktiPath = null;
-            if ($request->hasFile('bukti_pembayaran')) {
-                $buktiPath = $request->file('bukti_pembayaran')->store('bukti_pengeluaran', 'public');
-            }
+            // Hitung total biaya (gunakan nilai yang diberikan atau hitung ulang)
+            $totalBiaya = $request->jumlah_total ?? 0;
             
-            // Hitung total biaya
-            $totalBiaya = 0;
-            foreach ($request->detail as $detail) {
-                $totalBiaya += $detail['jumlah'] * $detail['harga_satuan'];
+            if ($totalBiaya == 0) {
+                foreach ($request->detail_pengeluaran as $detail) {
+                    $totalBiaya += $detail['qty'] * $detail['harga'];
+                }
             }
             
             // Buat pengeluaran
@@ -84,32 +81,48 @@ class PengeluaranController extends Controller
                 'tanggal' => $request->tanggal,
                 'total_biaya' => $totalBiaya,
                 'kategori_pengeluaran_id' => $request->kategori_pengeluaran_id,
+                'supplier_id' => $request->supplier_id,
+                'penerima' => $request->penerima,
                 'keterangan' => $request->keterangan,
-                'bukti_pembayaran' => $buktiPath,
-                'user_id' => auth()->id(),
+                'bukti_pembayaran' => null, // Bukti pembayaran diatur melalui fitur terpisah
+                'user_id' => auth()->id() ?? 1, // Fallback jika tidak ada auth
             ]);
             
             // Simpan detail pengeluaran
-            foreach ($request->detail as $detail) {
+            foreach ($request->detail_pengeluaran as $detail) {
                 DetailPengeluaran::create([
                     'pengeluaran_id' => $pengeluaran->id,
-                    'nama_item' => $detail['nama_item'],
-                    'jumlah' => $detail['jumlah'],
-                    'satuan' => $detail['satuan'],
-                    'harga_satuan' => $detail['harga_satuan'],
-                    'subtotal' => $detail['jumlah'] * $detail['harga_satuan'],
-                    'supplier_id' => $detail['supplier_id'] ?? null,
+                    'nama_item' => $detail['nama'],
+                    'jumlah' => $detail['qty'],
+                    'satuan' => 'pcs', // Default satuan
+                    'harga_satuan' => $detail['harga'],
+                    'subtotal' => $detail['qty'] * $detail['harga'],
+                    'supplier_id' => $request->supplier_id, // Ambil dari pengeluaran
                 ]);
                 
-                // Update stok inventaris jika ada
-                if (isset($detail['inventaris_id'])) {
-                    $inventaris = Inventaris::find($detail['inventaris_id']);
+                // Update stok inventaris jika kategori terkait dengan inventaris
+                $kategori = KategoriPengeluaran::find($request->kategori_pengeluaran_id);
+                if ($kategori && $kategori->terkait_inventaris && $request->supplier_id) {
+                    // Coba cari inventaris yang sesuai
+                    $inventaris = Inventaris::where('nama', 'like', '%' . $detail['nama'] . '%')->first();
+                    
                     if ($inventaris) {
-                        $inventaris->jumlah_stok += $detail['jumlah'];
-                        $inventaris->harga_beli_terakhir = $detail['harga_satuan'];
+                        $inventaris->jumlah_stok += $detail['qty'];
+                        $inventaris->harga_beli_terakhir = $detail['harga'];
                         $inventaris->tanggal_beli_terakhir = $request->tanggal;
-                        $inventaris->supplier_id = $detail['supplier_id'] ?? $inventaris->supplier_id;
+                        $inventaris->supplier_id = $request->supplier_id;
                         $inventaris->save();
+                    } else {
+                        // Jika tidak ada, buat inventaris baru
+                        Inventaris::create([
+                            'nama' => $detail['nama'],
+                            'jumlah_stok' => $detail['qty'],
+                            'satuan' => 'pcs',
+                            'harga_beli_terakhir' => $detail['harga'],
+                            'tanggal_beli_terakhir' => $request->tanggal,
+                            'supplier_id' => $request->supplier_id,
+                            'kategori_id' => $request->kategori_pengeluaran_id
+                        ]);
                     }
                 }
             }
@@ -124,10 +137,7 @@ class PengeluaranController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             
-            // Hapus file yang sudah diupload jika ada error
-            if ($buktiPath) {
-                Storage::disk('public')->delete($buktiPath);
-            }
+            // Tidak perlu hapus file karena tidak ada upload file
             
             return response()->json([
                 'status' => 'error',
