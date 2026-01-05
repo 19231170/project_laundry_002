@@ -33,15 +33,24 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="pelanggan_id" class="block text-sm font-medium text-gray-700">Pelanggan</label>
-                            <select name="pelanggan_id" id="pelanggan_id" 
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
-                                <option value="">Pilih Pelanggan</option>
-                                @foreach($pelanggan as $p)
-                                    <option value="{{ $p->id }}" {{ old('pelanggan_id') == $p->id ? 'selected' : '' }}>
-                                        {{ $p->nama }} - {{ $p->telepon }}
-                                    </option>
-                                @endforeach
-                            </select>
+                            <div class="flex gap-2">
+                                <select name="pelanggan_id" id="pelanggan_id" 
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                                    <option value="">Pilih Pelanggan</option>
+                                    @foreach($pelanggan as $p)
+                                        <option value="{{ $p->id }}" {{ old('pelanggan_id') == $p->id ? 'selected' : '' }}>
+                                            {{ $p->nama }} - {{ $p->telepon }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <button type="button" onclick="openPelangganModal()" 
+                                    class="mt-1 flex-shrink-0 bg-green-500 hover:bg-green-600 text-white font-bold p-2 rounded-md transition-colors" 
+                                    title="Tambah Pelanggan Baru">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
 
                         <div>
@@ -111,6 +120,13 @@
                     <div class="mt-6">
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="text-lg font-medium text-gray-900">Detail Layanan</h3>
+                            <button type="button" onclick="openLayananModal()" 
+                                class="text-sm bg-green-500 hover:bg-green-600 text-white font-medium py-1 px-3 rounded-md transition-colors flex items-center gap-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                </svg>
+                                Layanan Baru
+                            </button>
                         </div>
 
                         <div id="layanan-container">
@@ -220,8 +236,325 @@
     </div>
 </div>
 
+<!-- Modal Tambah Pelanggan -->
+<div id="pelangganModal" class="fixed inset-0 z-50 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closePelangganModal()"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <form id="formTambahPelanggan">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-medium text-gray-900">Tambah Pelanggan Baru</h3>
+                        <button type="button" onclick="closePelangganModal()" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label for="pelanggan_nama" class="block text-sm font-medium text-gray-700">Nama <span class="text-red-500">*</span></label>
+                            <input type="text" id="pelanggan_nama" name="nama" required
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+                                placeholder="Nama pelanggan">
+                        </div>
+                        <div>
+                            <label for="pelanggan_telepon" class="block text-sm font-medium text-gray-700">Telepon</label>
+                            <input type="text" id="pelanggan_telepon" name="telepon"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+                                placeholder="08xxxxxxxxxx">
+                        </div>
+                        <div>
+                            <label for="pelanggan_email" class="block text-sm font-medium text-gray-700">Email</label>
+                            <input type="email" id="pelanggan_email" name="email"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+                                placeholder="email@example.com">
+                        </div>
+                        <div>
+                            <label for="pelanggan_alamat" class="block text-sm font-medium text-gray-700">Alamat</label>
+                            <textarea id="pelanggan_alamat" name="alamat" rows="2"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+                                placeholder="Alamat pelanggan"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-2">
+                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 sm:w-auto sm:text-sm">
+                        Simpan Pelanggan
+                    </button>
+                    <button type="button" onclick="closePelangganModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:w-auto sm:text-sm">
+                        Batal
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Tambah Layanan -->
+<div id="layananModal" class="fixed inset-0 z-50 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeLayananModal()"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <form id="formTambahLayanan">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-medium text-gray-900">Tambah Layanan Baru</h3>
+                        <button type="button" onclick="closeLayananModal()" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label for="layanan_nama" class="block text-sm font-medium text-gray-700">Nama Layanan <span class="text-red-500">*</span></label>
+                            <input type="text" id="layanan_nama" name="nama_layanan" required
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+                                placeholder="Contoh: Cuci Kering">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="layanan_satuan" class="block text-sm font-medium text-gray-700">Satuan <span class="text-red-500">*</span></label>
+                                <select id="layanan_satuan" name="satuan" required
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">Pilih Satuan</option>
+                                    <option value="KG">Kilogram (KG)</option>
+                                    <option value="PCS">Pieces (PCS)</option>
+                                    <option value="M">Meter (M)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="layanan_harga" class="block text-sm font-medium text-gray-700">Harga <span class="text-red-500">*</span></label>
+                                <div class="mt-1 relative rounded-md shadow-sm">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <span class="text-gray-500 sm:text-sm">Rp</span>
+                                    </div>
+                                    <input type="number" id="layanan_harga" name="harga" min="0" step="100" required
+                                        class="block w-full pl-10 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+                                        placeholder="10000">
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="layanan_estimasi" class="block text-sm font-medium text-gray-700">Estimasi Waktu (Hari)</label>
+                            <input type="number" id="layanan_estimasi" name="estimasi_waktu" min="1" max="30" value="1"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label for="layanan_deskripsi" class="block text-sm font-medium text-gray-700">Deskripsi</label>
+                            <textarea id="layanan_deskripsi" name="deskripsi" rows="2"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+                                placeholder="Deskripsi layanan (opsional)"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-2">
+                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 sm:w-auto sm:text-sm">
+                        Simpan Layanan
+                    </button>
+                    <button type="button" onclick="closeLayananModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:w-auto sm:text-sm">
+                        Batal
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
+const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 let layananIndex = 1;
+
+// ==================== MODAL FUNCTIONS ====================
+
+// Pelanggan Modal Functions
+function openPelangganModal() {
+    document.getElementById('pelangganModal').classList.remove('hidden');
+    document.getElementById('pelanggan_nama').focus();
+}
+
+function closePelangganModal() {
+    document.getElementById('pelangganModal').classList.add('hidden');
+    document.getElementById('formTambahPelanggan').reset();
+}
+
+// Layanan Modal Functions
+function openLayananModal() {
+    document.getElementById('layananModal').classList.remove('hidden');
+    document.getElementById('layanan_nama').focus();
+}
+
+function closeLayananModal() {
+    document.getElementById('layananModal').classList.add('hidden');
+    document.getElementById('formTambahLayanan').reset();
+}
+
+// Handle Pelanggan Form Submit
+document.getElementById('formTambahPelanggan').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = {
+        nama: document.getElementById('pelanggan_nama').value,
+        telepon: document.getElementById('pelanggan_telepon').value,
+        email: document.getElementById('pelanggan_email').value,
+        alamat: document.getElementById('pelanggan_alamat').value
+    };
+    
+    Swal.fire({
+        title: 'Menyimpan...',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+    });
+    
+    fetch('/web-api/pelanggan', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken,
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            // Add new option to select
+            const select = document.getElementById('pelanggan_id');
+            const newOption = new Option(
+                `${data.data.nama} - ${data.data.telepon || 'N/A'}`,
+                data.data.id,
+                true,
+                true
+            );
+            select.add(newOption);
+            
+            closePelangganModal();
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: 'Pelanggan baru berhasil ditambahkan',
+                timer: 1500,
+                showConfirmButton: false
+            });
+        } else {
+            throw new Error(data.message || 'Gagal menyimpan pelanggan');
+        }
+    })
+    .catch(error => {
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal!',
+            text: error.message || 'Terjadi kesalahan saat menyimpan pelanggan'
+        });
+    });
+});
+
+// Handle Layanan Form Submit
+document.getElementById('formTambahLayanan').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = {
+        nama_layanan: document.getElementById('layanan_nama').value,
+        satuan: document.getElementById('layanan_satuan').value,
+        harga: document.getElementById('layanan_harga').value,
+        estimasi_waktu: document.getElementById('layanan_estimasi').value,
+        deskripsi: document.getElementById('layanan_deskripsi').value
+    };
+    
+    Swal.fire({
+        title: 'Menyimpan...',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+    });
+    
+    fetch('/web-api/layanan', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken,
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            const layanan = data.data;
+            const hargaFormatted = layanan.harga ? 'Rp ' + parseInt(layanan.harga).toLocaleString('id-ID') : 'Rp 0';
+            const optionText = `${layanan.nama_layanan} (${hargaFormatted} / ${layanan.satuan})`;
+            
+            // Add to all layanan selects
+            document.querySelectorAll('.layanan-select').forEach(select => {
+                const newOption = document.createElement('option');
+                newOption.value = layanan.id;
+                newOption.setAttribute('data-harga', layanan.harga);
+                newOption.setAttribute('data-satuan', layanan.satuan);
+                newOption.textContent = optionText;
+                select.appendChild(newOption);
+            });
+            
+            // Update the template for new layanan items
+            updateLayananTemplate(layanan);
+            
+            closeLayananModal();
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: 'Layanan baru berhasil ditambahkan',
+                timer: 1500,
+                showConfirmButton: false
+            });
+        } else {
+            throw new Error(data.message || 'Gagal menyimpan layanan');
+        }
+    })
+    .catch(error => {
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal!',
+            text: error.message || 'Terjadi kesalahan saat menyimpan layanan'
+        });
+    });
+});
+
+// Store new layanan for dynamic items
+let newLayananOptions = [];
+
+function updateLayananTemplate(layanan) {
+    newLayananOptions.push(layanan);
+}
+
+function getLayananOptionsHtml() {
+    let html = '<option value="">Pilih Layanan</option>';
+    @foreach($layanan as $l)
+    html += `<option value="{{ $l->id }}" data-harga="{{ $l->harga }}" data-satuan="{{ $l->satuan }}">{{ $l->nama_layanan }} ({{ $l->harga ? 'Rp '.number_format($l->harga, 0, ',', '.') : '0' }} / {{ $l->satuan }})</option>`;
+    @endforeach
+    
+    // Add dynamically created layanan
+    newLayananOptions.forEach(l => {
+        const hargaFormatted = l.harga ? 'Rp ' + parseInt(l.harga).toLocaleString('id-ID') : 'Rp 0';
+        html += `<option value="${l.id}" data-harga="${l.harga}" data-satuan="${l.satuan}">${l.nama_layanan} (${hargaFormatted} / ${l.satuan})</option>`;
+    });
+    
+    return html;
+}
+
+// Close modals on Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closePelangganModal();
+        closeLayananModal();
+    }
+});
+
+// ==================== LAYANAN ITEM FUNCTIONS ====================
 
 document.getElementById('add-layanan').addEventListener('click', function() {
     const container = document.getElementById('layanan-container');
@@ -244,12 +577,7 @@ document.getElementById('add-layanan').addEventListener('click', function() {
                 <select name="layanan[${layananIndex}][layanan_id]" 
                     class="layanan-select mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" 
                     required onchange="updateHarga(this)">
-                    <option value="">Pilih Layanan</option>
-                    @foreach($layanan as $l)
-                        <option value="{{ $l->id }}" data-harga="{{ $l->harga }}" data-satuan="{{ $l->satuan }}">
-                            {{ $l->nama_layanan }} ({{ $l->harga ? 'Rp '.number_format($l->harga, 0, ',', '.') : '0' }} / {{ $l->satuan }})
-                        </option>
-                    @endforeach
+                    ${getLayananOptionsHtml()}
                 </select>
             </div>
             <div>

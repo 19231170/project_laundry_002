@@ -20,7 +20,7 @@
                             </div>
                             <div class="ml-4">
                                 <p class="text-sm font-medium text-gray-500">Total Pelanggan</p>
-                                <p class="text-2xl font-semibold text-gray-900" id="total-pelanggan">0</p>
+                                <p class="text-2xl font-semibold text-gray-900">{{ $totalPelanggan }}</p>
                             </div>
                         </div>
                     </div>
@@ -37,7 +37,7 @@
                             </div>
                             <div class="ml-4">
                                 <p class="text-sm font-medium text-gray-500">Transaksi Hari Ini</p>
-                                <p class="text-2xl font-semibold text-gray-900" id="transaksi-hari-ini">0</p>
+                                <p class="text-2xl font-semibold text-gray-900">{{ $transaksiHariIni }}</p>
                             </div>
                         </div>
                     </div>
@@ -54,7 +54,7 @@
                             </div>
                             <div class="ml-4">
                                 <p class="text-sm font-medium text-gray-500">Pendapatan Hari Ini</p>
-                                <p class="text-2xl font-semibold text-gray-900" id="pendapatan-hari-ini">Rp 0</p>
+                                <p class="text-2xl font-semibold text-gray-900">Rp {{ number_format($pendapatanHariIni, 0, ',', '.') }}</p>
                             </div>
                         </div>
                     </div>
@@ -71,7 +71,7 @@
                             </div>
                             <div class="ml-4">
                                 <p class="text-sm font-medium text-gray-500">Transaksi Proses</p>
-                                <p class="text-2xl font-semibold text-gray-900" id="transaksi-proses">0</p>
+                                <p class="text-2xl font-semibold text-gray-900">{{ $transaksiProses }}</p>
                             </div>
                         </div>
                     </div>
@@ -88,7 +88,7 @@
                             </div>
                             <div class="ml-4">
                                 <p class="text-sm font-medium text-gray-500">Belum Dibayar</p>
-                                <p class="text-2xl font-semibold text-gray-900" id="belum-dibayar">Rp 0</p>
+                                <p class="text-2xl font-semibold text-gray-900">Rp {{ number_format($totalBelumLunas, 0, ',', '.') }}</p>
                             </div>
                         </div>
                     </div>
@@ -120,8 +120,23 @@
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-5">
                         <h3 class="text-lg font-semibold text-gray-900 mb-4">Transaksi Terbaru</h3>
-                        <div class="space-y-3" id="transaksi-terbaru">
-                            <div class="text-gray-500">Memuat data...</div>
+                        <div class="space-y-3">
+                            @forelse($transaksiTerbaru as $transaksi)
+                                <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">{{ $transaksi->kode_transaksi }}</p>
+                                        <p class="text-xs text-gray-500">{{ $transaksi->pelanggan->nama ?? 'N/A' }}</p>
+                                    </div>
+                                    <div class="flex flex-col items-end">
+                                        <span class="text-xs px-2 py-1 mb-1 rounded bg-blue-100 text-blue-800">{{ ucfirst($transaksi->status) }}</span>
+                                        <span class="text-xs px-2 py-1 rounded {{ $transaksi->status_pembayaran === 'lunas' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                            {{ $transaksi->status_pembayaran === 'lunas' ? 'Lunas' : 'Belum Lunas' }}
+                                        </span>
+                                    </div>
+                                </div>
+                            @empty
+                                <div class="text-gray-500">Belum ada transaksi</div>
+                            @endforelse
                         </div>
                     </div>
                 </div>
@@ -132,19 +147,19 @@
                         <div id="payment-status" class="mb-4">
                             <div class="flex justify-between mb-2">
                                 <span class="text-sm font-medium text-gray-700">Lunas</span>
-                                <span id="percent-paid" class="text-sm font-medium text-gray-900">0%</span>
+                                <span class="text-sm font-medium text-gray-900">{{ $persentaseLunas }}%</span>
                             </div>
                             <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                <div id="payment-progress" class="bg-green-600 h-2.5 rounded-full" style="width: 0%"></div>
+                                <div class="bg-green-600 h-2.5 rounded-full" style="width: {{ $persentaseLunas }}%"></div>
                             </div>
                             <div class="grid grid-cols-2 gap-4 mt-4">
                                 <div class="bg-green-50 p-3 rounded-md">
                                     <p class="text-sm text-gray-500">Transaksi Lunas</p>
-                                    <p id="count-paid" class="text-xl font-bold text-gray-800">0</p>
+                                    <p class="text-xl font-bold text-gray-800">{{ $lunasCount }}</p>
                                 </div>
                                 <div class="bg-red-50 p-3 rounded-md">
                                     <p class="text-sm text-gray-500">Transaksi Belum Lunas</p>
-                                    <p id="count-unpaid" class="text-xl font-bold text-gray-800">0</p>
+                                    <p class="text-xl font-bold text-gray-800">{{ $belumLunasCount }}</p>
                                 </div>
                             </div>
                         </div>
@@ -176,73 +191,4 @@
             </div>
         </div>
     </div>
-
-    <script>
-        // Load dashboard data
-        document.addEventListener('DOMContentLoaded', function() {
-            fetch('/api/v1/laporan/dashboard')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        // Basic stats
-                        document.getElementById('total-pelanggan').textContent = data.data.total_pelanggan;
-                        document.getElementById('transaksi-hari-ini').textContent = data.data.hari_ini.transaksi;
-                        document.getElementById('pendapatan-hari-ini').textContent = 'Rp ' + new Intl.NumberFormat('id-ID').format(data.data.hari_ini.pendapatan);
-                        document.getElementById('transaksi-proses').textContent = data.data.status_transaksi.proses || 0;
-                        
-                        // Payment stats
-                        if (data.data.pembayaran) {
-                            document.getElementById('belum-dibayar').textContent = 'Rp ' + new Intl.NumberFormat('id-ID').format(data.data.pembayaran.total_belum_lunas || 0);
-                            
-                            // Update payment status card
-                            document.getElementById('count-paid').textContent = data.data.pembayaran.transaksi_lunas || 0;
-                            document.getElementById('count-unpaid').textContent = data.data.pembayaran.transaksi_belum_lunas || 0;
-                            
-                            const percentPaid = data.data.pembayaran.persentase_lunas || 0;
-                            document.getElementById('percent-paid').textContent = percentPaid + '%';
-                            document.getElementById('payment-progress').style.width = percentPaid + '%';
-                        }
-                    }
-                })
-                .catch(error => console.error('Error loading dashboard data:', error));
-
-            // Load recent transactions
-            fetch('/api/v1/transaksi?limit=5')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        const container = document.getElementById('transaksi-terbaru');
-                        container.innerHTML = '';
-                        
-                        if (data.data.data.length > 0) {
-                            data.data.data.forEach(transaksi => {
-                                const div = document.createElement('div');
-                                div.className = 'flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-700 rounded';
-                                
-                                // Payment status badge
-                                const paymentBadgeClass = transaksi.status_pembayaran === 'lunas' 
-                                    ? 'bg-green-100 text-green-800' 
-                                    : 'bg-red-100 text-red-800';
-                                const paymentStatus = transaksi.status_pembayaran === 'lunas' ? 'Lunas' : 'Belum Lunas';
-                                
-                                div.innerHTML = `
-                                    <div>
-                                        <p class="text-sm font-medium text-gray-900">${transaksi.kode_transaksi}</p>
-                                        <p class="text-xs text-gray-500">${transaksi.pelanggan.nama}</p>
-                                    </div>
-                                    <div class="flex flex-col items-end">
-                                        <span class="text-xs px-2 py-1 mb-1 rounded bg-blue-100 text-blue-800">${transaksi.status}</span>
-                                        <span class="text-xs px-2 py-1 rounded ${paymentBadgeClass}">${paymentStatus}</span>
-                                    </div>
-                                `;
-                                container.appendChild(div);
-                            });
-                        } else {
-                            container.innerHTML = '<div class="text-gray-500 dark:text-gray-400">Belum ada transaksi</div>';
-                        }
-                    }
-                })
-                .catch(error => console.error('Error loading recent transactions:', error));
-        });
-    </script>
 </x-app-layout>

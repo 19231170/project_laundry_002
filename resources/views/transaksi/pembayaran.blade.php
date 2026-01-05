@@ -119,7 +119,7 @@
         });
         
         function loadUnpaidTransactions() {
-            fetch('/api/v1/transaksi?status_pembayaran=belum_lunas')
+            fetch('/web-api/transaksi?status_pembayaran=belum_lunas')
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === 'success') {
@@ -225,7 +225,7 @@
                 status_pembayaran: isLunas ? 'lunas' : 'belum_lunas'
             };
             
-            fetch('/api/v1/pembayaran', {
+            fetch('/web-api/pembayaran', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

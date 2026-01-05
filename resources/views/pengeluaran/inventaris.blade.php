@@ -205,7 +205,7 @@
     @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const apiBaseUrl = '/api/v1';
+            const apiBaseUrl = '/web-api';
             let currentPage = 1;
             let lastPage = 1;
             let filterData = {

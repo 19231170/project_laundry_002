@@ -187,7 +187,7 @@
                 const tanggalMulai = document.getElementById('tanggal_mulai').value;
                 const tanggalSelesai = document.getElementById('tanggal_selesai').value;
                 
-                fetch(`/api/v1/laporan/pengeluaran-per-kategori?tanggal_mulai=${tanggalMulai}&tanggal_selesai=${tanggalSelesai}`)
+                fetch(`/web-api/laporan/pengeluaran-per-kategori?tanggal_mulai=${tanggalMulai}&tanggal_selesai=${tanggalSelesai}`)
                     .then(response => response.json())
                     .then(data => {
                         if (data.status === 'success') {
@@ -417,14 +417,14 @@
                 const tanggalMulai = document.getElementById('tanggal_mulai').value;
                 const tanggalSelesai = document.getElementById('tanggal_selesai').value;
                 
-                window.location.href = `/api/v1/laporan/export/pengeluaran-per-kategori?tanggal_mulai=${tanggalMulai}&tanggal_selesai=${tanggalSelesai}&format=xlsx`;
+                window.location.href = `/web-api/laporan/export/pengeluaran-per-kategori?tanggal_mulai=${tanggalMulai}&tanggal_selesai=${tanggalSelesai}&format=xlsx`;
             });
             
             document.getElementById('btn-export-pdf').addEventListener('click', function() {
                 const tanggalMulai = document.getElementById('tanggal_mulai').value;
                 const tanggalSelesai = document.getElementById('tanggal_selesai').value;
                 
-                window.location.href = `/api/v1/laporan/export/pengeluaran-per-kategori?tanggal_mulai=${tanggalMulai}&tanggal_selesai=${tanggalSelesai}&format=pdf`;
+                window.location.href = `/web-api/laporan/export/pengeluaran-per-kategori?tanggal_mulai=${tanggalMulai}&tanggal_selesai=${tanggalSelesai}&format=pdf`;
             });
             
             document.getElementById('btn-print').addEventListener('click', function() {

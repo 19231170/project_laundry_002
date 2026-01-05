@@ -198,7 +198,7 @@
                 const tanggalSelesai = document.getElementById('tanggal_selesai').value;
                 const tipe = document.getElementById('tipe').value;
                 
-                fetch(`/api/v1/laporan/laba-rugi?tanggal_mulai=${tanggalMulai}&tanggal_selesai=${tanggalSelesai}&tipe=${tipe}`)
+                fetch(`/web-api/laporan/laba-rugi?tanggal_mulai=${tanggalMulai}&tanggal_selesai=${tanggalSelesai}&tipe=${tipe}`)
                     .then(response => response.json())
                     .then(data => {
                         if (data.status === 'success') {
@@ -522,7 +522,7 @@
                 const tanggalSelesai = document.getElementById('tanggal_selesai').value;
                 const tipe = document.getElementById('tipe').value;
                 
-                window.location.href = `/api/v1/laporan/export/laba-rugi?tanggal_mulai=${tanggalMulai}&tanggal_selesai=${tanggalSelesai}&tipe=${tipe}&format=xlsx`;
+                window.location.href = `/web-api/laporan/export/laba-rugi?tanggal_mulai=${tanggalMulai}&tanggal_selesai=${tanggalSelesai}&tipe=${tipe}&format=xlsx`;
             });
             
             document.getElementById('btn-export-pdf').addEventListener('click', function() {
@@ -530,7 +530,7 @@
                 const tanggalSelesai = document.getElementById('tanggal_selesai').value;
                 const tipe = document.getElementById('tipe').value;
                 
-                window.location.href = `/api/v1/laporan/export/laba-rugi?tanggal_mulai=${tanggalMulai}&tanggal_selesai=${tanggalSelesai}&tipe=${tipe}&format=pdf`;
+                window.location.href = `/web-api/laporan/export/laba-rugi?tanggal_mulai=${tanggalMulai}&tanggal_selesai=${tanggalSelesai}&tipe=${tipe}&format=pdf`;
             });
             
             document.getElementById('btn-print').addEventListener('click', function() {

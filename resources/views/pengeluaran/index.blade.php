@@ -328,7 +328,7 @@
             }
             
             document.addEventListener('DOMContentLoaded', function() {
-                const apiBaseUrl = '/api/v1';
+                const apiBaseUrl = '/web-api';
                 const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
                 
                 let currentPage = 1;

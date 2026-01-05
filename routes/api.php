@@ -1,15 +1,15 @@
 <?php
 
+use App\Http\Controllers\InventarisController;
+use App\Http\Controllers\KategoriPengeluaranController;
+use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\LayananController;
+use App\Http\Controllers\PelangganController;
+use App\Http\Controllers\PengeluaranController;
+use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\TransaksiController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\PelangganController;
-use App\Http\Controllers\LayananController;
-use App\Http\Controllers\TransaksiController;
-use App\Http\Controllers\LaporanController;
-use App\Http\Controllers\PengeluaranController;
-use App\Http\Controllers\KategoriPengeluaranController;
-use App\Http\Controllers\SupplierController;
-use App\Http\Controllers\InventarisController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,23 +27,23 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 // API routes with authentication
-Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
+Route::prefix('v1')->middleware('auth:sanctum')->name('api.')->group(function () {
     // Pelanggan routes
     Route::apiResource('pelanggan', PelangganController::class);
-    
+
     // Layanan routes
     Route::apiResource('layanan', LayananController::class);
-    
+
     // Transaksi routes
     Route::apiResource('transaksi', TransaksiController::class);
-    Route::get('transaksi/{id}/struk', [TransaksiController::class, 'generateStruk']);
-    
+    Route::get('transaksi/{id}/struk', [TransaksiController::class, 'generateStruk'])->name('transaksi.struk');
+
     // Pengeluaran routes
     Route::apiResource('pengeluaran', PengeluaranController::class);
     Route::apiResource('kategori-pengeluaran', KategoriPengeluaranController::class);
     Route::apiResource('supplier', SupplierController::class);
     Route::apiResource('inventaris', InventarisController::class);
-    
+
     // Laporan routes
     Route::prefix('laporan')->group(function () {
         Route::get('dashboard', [LaporanController::class, 'getDashboardStats']);
@@ -53,7 +53,7 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::get('penggunaan-bahan', [LaporanController::class, 'getLaporanPenggunaanBahan']);
         Route::get('pengeluaran-per-kategori', [LaporanController::class, 'getLaporanPengeluaranPerKategori']);
         Route::get('pembulatan', [LaporanController::class, 'getLaporanPembulatan']);
-        
+
         // Export routes
         Route::get('export/transaksi', [LaporanController::class, 'exportTransaksi']);
         Route::get('export/pemasukan-pengeluaran', [LaporanController::class, 'exportPemasukanPengeluaran']);
@@ -64,7 +64,7 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::get('export/laporan-mingguan', [LaporanController::class, 'exportLaporanMingguan']);
         Route::get('export/laporan-bulanan', [LaporanController::class, 'exportLaporanBulanan']);
         Route::get('export/pembulatan', [LaporanController::class, 'exportPembulatan']);
-        
+
         // Import routes
         Route::post('import/transaksi', [LaporanController::class, 'importTransaksi']);
     });

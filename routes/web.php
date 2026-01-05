@@ -1,11 +1,11 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\Web\PelangganWebController;
-use App\Http\Controllers\Web\LayananWebController;
-use App\Http\Controllers\Web\TransaksiWebController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Web\LaporanWebController;
+use App\Http\Controllers\Web\LayananWebController;
+use App\Http\Controllers\Web\PelangganWebController;
+use App\Http\Controllers\Web\TransaksiWebController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -25,7 +25,7 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    
+
     // Pelanggan Web Routes
     Route::resource('pelanggan', PelangganWebController::class)->names([
         'index' => 'pelanggan.index',
@@ -36,7 +36,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         'update' => 'pelanggan.update',
         'destroy' => 'pelanggan.destroy',
     ]);
-    
+
     // Layanan Web Routes
     Route::resource('layanan', LayananWebController::class)->names([
         'index' => 'layanan.index',
@@ -47,7 +47,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         'update' => 'layanan.update',
         'destroy' => 'layanan.destroy',
     ]);
-    
+
     // Transaksi Web Routes
     Route::resource('transaksi', TransaksiWebController::class)->names([
         'index' => 'transaksi.index',
@@ -61,7 +61,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('transaksi/{id}/struk', [TransaksiWebController::class, 'generateStruk'])->name('transaksi.struk');
     Route::put('transaksi/{transaksi}/mark-as-paid', [TransaksiWebController::class, 'markAsPaid'])->name('transaksi.mark-as-paid');
 
-    
     // Laporan Web Routes
     Route::prefix('laporan')->name('laporan.')->group(function () {
         Route::get('/', [LaporanWebController::class, 'index'])->name('index');
@@ -70,33 +69,33 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('export-excel', [LaporanWebController::class, 'exportExcel'])->name('export-excel');
         Route::get('export-pdf', [LaporanWebController::class, 'exportPdf'])->name('export-pdf');
     });
-    
+
     // Expense Management Routes
     Route::get('/pengeluaran', function () {
         return view('pengeluaran.index');
     })->middleware(['auth', 'verified'])->name('pengeluaran');
-    
+
     Route::get('/pengeluaran/kategori', function () {
         return view('pengeluaran.kategori');
     })->middleware(['auth', 'verified'])->name('pengeluaran.kategori');
-    
+
     Route::get('/pengeluaran/supplier', function () {
         return view('pengeluaran.supplier');
     })->middleware(['auth', 'verified'])->name('pengeluaran.supplier');
-    
+
     Route::get('/pengeluaran/inventaris', function () {
         return view('pengeluaran.inventaris');
     })->middleware(['auth', 'verified'])->name('pengeluaran.inventaris');
-    
+
     // Report Routes
     Route::get('/laporan/laba-rugi', function () {
         return view('laporan.laba-rugi');
     })->middleware(['auth', 'verified'])->name('laporan.laba-rugi');
-    
+
     Route::get('/laporan/penggunaan-bahan', function () {
         return view('laporan.penggunaan-bahan');
     })->middleware(['auth', 'verified'])->name('laporan.penggunaan-bahan');
-    
+
     Route::get('/laporan/pengeluaran-kategori', function () {
         return view('laporan.pengeluaran-kategori');
     })->middleware(['auth', 'verified'])->name('laporan.pengeluaran-kategori');
@@ -104,6 +103,36 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/laporan/pembulatan', function () {
         return view('laporan.pembulatan');
     })->name('laporan.pembulatan');
+
+    // Web API routes (using session authentication for JavaScript fetch)
+    Route::prefix('web-api')->name('web-api.')->group(function () {
+        Route::apiResource('pengeluaran', \App\Http\Controllers\PengeluaranController::class);
+        Route::apiResource('kategori-pengeluaran', \App\Http\Controllers\KategoriPengeluaranController::class);
+        Route::apiResource('supplier', \App\Http\Controllers\SupplierController::class);
+        Route::apiResource('inventaris', \App\Http\Controllers\InventarisController::class);
+        Route::apiResource('pelanggan', \App\Http\Controllers\PelangganController::class);
+        Route::apiResource('layanan', \App\Http\Controllers\LayananController::class);
+        Route::apiResource('transaksi', \App\Http\Controllers\TransaksiController::class);
+
+        // Laporan routes
+        Route::prefix('laporan')->group(function () {
+            Route::get('dashboard', [\App\Http\Controllers\LaporanController::class, 'getDashboardStats']);
+            Route::get('pemasukan-pengeluaran', [\App\Http\Controllers\LaporanController::class, 'getLaporanPemasukanPengeluaran']);
+            Route::get('layanan-terlaris', [\App\Http\Controllers\LaporanController::class, 'getLaporanLayananTerlaris']);
+            Route::get('laba-rugi', [\App\Http\Controllers\LaporanController::class, 'getLaporanLabaRugi']);
+            Route::get('penggunaan-bahan', [\App\Http\Controllers\LaporanController::class, 'getLaporanPenggunaanBahan']);
+            Route::get('pengeluaran-per-kategori', [\App\Http\Controllers\LaporanController::class, 'getLaporanPengeluaranPerKategori']);
+            Route::get('pembulatan', [\App\Http\Controllers\LaporanController::class, 'getLaporanPembulatan']);
+
+            // Export routes
+            Route::get('export/transaksi', [\App\Http\Controllers\LaporanController::class, 'exportTransaksi']);
+            Route::get('export/pemasukan-pengeluaran', [\App\Http\Controllers\LaporanController::class, 'exportPemasukanPengeluaran']);
+            Route::get('export/laba-rugi', [\App\Http\Controllers\LaporanController::class, 'exportLabaRugi']);
+            Route::get('export/penggunaan-bahan', [\App\Http\Controllers\LaporanController::class, 'exportPenggunaanBahan']);
+            Route::get('export/pengeluaran-per-kategori', [\App\Http\Controllers\LaporanController::class, 'exportPengeluaranPerKategori']);
+            Route::get('export/pembulatan', [\App\Http\Controllers\LaporanController::class, 'exportPembulatan']);
+        });
+    });
 });
 
 Route::middleware('auth')->group(function () {

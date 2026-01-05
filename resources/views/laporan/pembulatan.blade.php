@@ -120,7 +120,7 @@
                 const endDate = document.getElementById('end_date').value;
                 const jenis = document.getElementById('jenis').value;
                 
-                fetch(`/api/v1/laporan/pembulatan?start_date=${startDate}&end_date=${endDate}&jenis=${jenis}`)
+                fetch(`/web-api/laporan/pembulatan?start_date=${startDate}&end_date=${endDate}&jenis=${jenis}`)
                     .then(response => response.json())
                     .then(data => {
                         if (data.status === 'success') {
@@ -207,7 +207,7 @@
                 const endDate = document.getElementById('end_date').value;
                 const jenis = document.getElementById('jenis').value;
                 
-                window.location.href = `/api/v1/laporan/export/pembulatan?start_date=${startDate}&end_date=${endDate}&jenis=${jenis}`;
+                window.location.href = `/web-api/laporan/export/pembulatan?start_date=${startDate}&end_date=${endDate}&jenis=${jenis}`;
             });
             
             // Load initial report

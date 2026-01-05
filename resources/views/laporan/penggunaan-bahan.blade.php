@@ -187,7 +187,7 @@
             });
             
             function loadCategories() {
-                fetch('/api/v1/kategori-pengeluaran')
+                fetch('/web-api/kategori-pengeluaran')
                     .then(response => response.json())
                     .then(data => {
                         if (data.status === 'success') {
@@ -211,7 +211,7 @@
                 const tanggalSelesai = document.getElementById('tanggal_selesai').value;
                 const kategoriId = document.getElementById('kategori_id').value;
                 
-                let url = `/api/v1/laporan/penggunaan-bahan?tanggal_mulai=${tanggalMulai}&tanggal_selesai=${tanggalSelesai}`;
+                let url = `/web-api/laporan/penggunaan-bahan?tanggal_mulai=${tanggalMulai}&tanggal_selesai=${tanggalSelesai}`;
                 if (kategoriId) {
                     url += `&kategori_id=${kategoriId}`;
                 }
@@ -498,7 +498,7 @@
                 const tanggalSelesai = document.getElementById('tanggal_selesai').value;
                 const kategoriId = document.getElementById('kategori_id').value;
                 
-                let url = `/api/v1/laporan/export/penggunaan-bahan?tanggal_mulai=${tanggalMulai}&tanggal_selesai=${tanggalSelesai}&format=xlsx`;
+                let url = `/web-api/laporan/export/penggunaan-bahan?tanggal_mulai=${tanggalMulai}&tanggal_selesai=${tanggalSelesai}&format=xlsx`;
                 if (kategoriId) {
                     url += `&kategori_id=${kategoriId}`;
                 }
@@ -511,7 +511,7 @@
                 const tanggalSelesai = document.getElementById('tanggal_selesai').value;
                 const kategoriId = document.getElementById('kategori_id').value;
                 
-                let url = `/api/v1/laporan/export/penggunaan-bahan?tanggal_mulai=${tanggalMulai}&tanggal_selesai=${tanggalSelesai}&format=pdf`;
+                let url = `/web-api/laporan/export/penggunaan-bahan?tanggal_mulai=${tanggalMulai}&tanggal_selesai=${tanggalSelesai}&format=pdf`;
                 if (kategoriId) {
                     url += `&kategori_id=${kategoriId}`;
                 }
