@@ -21,6 +21,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'pos_pin',
+        'is_admin',
     ];
 
     /**
@@ -31,6 +33,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'pos_pin',
     ];
 
     /**
@@ -41,5 +44,30 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'is_admin' => 'boolean',
     ];
+
+    /**
+     * Check if user is admin.
+     */
+    public function isAdmin(): bool
+    {
+        return (bool) $this->is_admin;
+    }
+
+    /**
+     * Check if user has POS PIN set.
+     */
+    public function hasPosPin(): bool
+    {
+        return ! empty($this->pos_pin);
+    }
+
+    /**
+     * Verify POS PIN.
+     */
+    public function verifyPosPin(string $pin): bool
+    {
+        return $this->pos_pin === $pin;
+    }
 }

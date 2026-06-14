@@ -11,9 +11,14 @@
                 <div class="p-4 text-gray-900">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-xl font-semibold">Daftar Transaksi</h2>
-                    <a href="{{ route('transaksi.create') }}" class="inline-flex items-center whitespace-nowrap bg-blue-500 hover:bg-blue-700 text-white py-1.5 px-3 rounded text-sm">
-                        <i class="fas fa-plus"></i><span class="ml-1">Tambah Transaksi</span>
-                    </a>
+                    <div class="flex items-center gap-2">
+                        <button id="bulk-action-btn" type="button" class="inline-flex items-center whitespace-nowrap bg-indigo-500 hover:bg-indigo-700 text-white py-1.5 px-3 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                            <i class="fas fa-layer-group"></i><span class="ml-1">Smart Action</span>
+                        </button>
+                        <a href="{{ route('transaksi.create') }}" class="inline-flex items-center whitespace-nowrap bg-blue-500 hover:bg-blue-700 text-white py-1.5 px-3 rounded text-sm">
+                            <i class="fas fa-plus"></i><span class="ml-1">Tambah Transaksi</span>
+                        </a>
+                    </div>
                 </div>
                 
                 <!-- Filter Controls -->
@@ -63,10 +68,34 @@
                 </script>
                 @endif
 
+                @if($errors->any())
+                <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4" role="alert">
+                    <p class="font-semibold">Validasi gagal:</p>
+                    <ul class="list-disc list-inside text-sm mt-1">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+                @endif
+
+<form id="bulk-action-form" action="{{ route('transaksi.bulk-action') }}" method="POST">
+                    @csrf
+                    @method('PUT')
+                    <input type="hidden" name="action" id="bulk-action-type">
+                    <input type="hidden" name="status_transaksi" id="bulk-status-transaksi">
+                    <input type="hidden" name="status_pembayaran" id="bulk-status-pembayaran">
+                    <!-- Hidden container for checkbox values - will be populated by JavaScript -->
+                    <div id="bulk-action-checkboxes"></div>
+                </form>
+
                 <div class="overflow-x-auto bg-white shadow-md rounded-lg" style="max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch;">
                     <table class="w-full divide-y divide-gray-200 table-auto text-sm border-collapse">
                         <thead class="bg-gray-50">
                             <tr>
+                                <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-10">
+                                    <input id="select-all" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                </th>
                                 <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">
                                     Kode Transaksi
                                 </th>
@@ -88,14 +117,17 @@
                                 <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-16">
                                     Pembayaran
                                 </th>
-                                <th class="px-1 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-[150px] min-w-[150px]">
-                                    Aksi
-                                </th>
-                            </tr>
+                                    <th class="px-1 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-[150px] min-w-[150px]">
+                                        Aksi
+                                    </th>
+                                </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
                             @forelse($transaksi as $t)
                                 <tr>
+<td class="px-2 py-1 whitespace-nowrap">
+                                        <input type="checkbox" name="transaksi_ids[]" value="{{ $t->id }}" class="bulk-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                    </td>
                                     <td class="px-2 py-1 whitespace-nowrap text-xs font-medium text-gray-900">
                                         {{ $t->kode_transaksi }}
                                     </td>
@@ -162,7 +194,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="8" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                    <td colspan="9" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                                         Tidak ada data transaksi
                                     </td>
                                 </tr>
@@ -228,6 +260,137 @@
                     });
                 });
             });
+
+            const bulkActionButton = document.getElementById('bulk-action-btn');
+            const bulkActionForm = document.getElementById('bulk-action-form');
+            const bulkActionType = document.getElementById('bulk-action-type');
+            const bulkStatusTransaksi = document.getElementById('bulk-status-transaksi');
+            const bulkStatusPembayaran = document.getElementById('bulk-status-pembayaran');
+            const selectAllCheckbox = document.getElementById('select-all');
+            const rowCheckboxes = Array.from(document.querySelectorAll('.bulk-checkbox'));
+
+            const updateBulkActionState = () => {
+                const checkedCount = rowCheckboxes.filter((checkbox) => checkbox.checked).length;
+
+                if (bulkActionButton) {
+                    bulkActionButton.disabled = checkedCount === 0;
+                }
+
+                if (selectAllCheckbox) {
+                    selectAllCheckbox.checked = checkedCount === rowCheckboxes.length && rowCheckboxes.length > 0;
+                    selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < rowCheckboxes.length;
+                }
+            };
+
+            if (selectAllCheckbox) {
+                selectAllCheckbox.addEventListener('change', () => {
+                    rowCheckboxes.forEach((checkbox) => {
+                        checkbox.checked = selectAllCheckbox.checked;
+                    });
+                    updateBulkActionState();
+                });
+            }
+
+            rowCheckboxes.forEach((checkbox) => {
+                checkbox.addEventListener('change', updateBulkActionState);
+            });
+
+            updateBulkActionState();
+
+if (bulkActionButton && bulkActionForm) {
+                bulkActionButton.addEventListener('click', async () => {
+                    if (bulkActionButton.disabled) {
+                        return;
+                    }
+
+                    const checkedCount = rowCheckboxes.filter((checkbox) => checkbox.checked).length;
+                    if (checkedCount === 0) {
+                        Swal.fire('Error', 'Pilih minimal satu transaksi.', 'error');
+                        return;
+                    }
+
+                    // Populate hidden checkbox values container
+                    const checkboxContainer = document.getElementById('bulk-action-checkboxes');
+                    if (checkboxContainer) {
+                        checkboxContainer.innerHTML = '';
+                        rowCheckboxes
+                            .filter((checkbox) => checkbox.checked)
+                            .forEach((checkbox) => {
+                                const hiddenInput = document.createElement('input');
+                                hiddenInput.type = 'hidden';
+                                hiddenInput.name = 'transaksi_ids[]';
+                                hiddenInput.value = checkbox.value;
+                                checkboxContainer.appendChild(hiddenInput);
+                            });
+                    }
+
+                    const actionResult = await Swal.fire({
+                        title: 'Aksi Massal',
+                        input: 'select',
+                        inputOptions: {
+                            status_transaksi: 'Ubah Status Transaksi',
+                            status_pembayaran: 'Ubah Status Pembayaran'
+                        },
+                        inputPlaceholder: 'Pilih aksi',
+                        showCancelButton: true,
+                        confirmButtonText: 'Lanjut',
+                        cancelButtonText: 'Batal'
+                    });
+
+                    if (!actionResult.isConfirmed || !actionResult.value) {
+                        return;
+                    }
+
+                    if (actionResult.value === 'status_transaksi') {
+                        const statusResult = await Swal.fire({
+                            title: 'Status Transaksi',
+                            input: 'select',
+                            inputOptions: {
+                                pending: 'Pending',
+                                proses: 'Proses',
+                                selesai: 'Selesai',
+                                diambil: 'Diambil'
+                            },
+                            inputPlaceholder: 'Pilih status',
+                            showCancelButton: true,
+                            confirmButtonText: 'Terapkan',
+                            cancelButtonText: 'Batal'
+                        });
+
+                        if (!statusResult.isConfirmed || !statusResult.value) {
+                            return;
+                        }
+
+                        bulkActionType.value = 'status_transaksi';
+                        bulkStatusTransaksi.value = statusResult.value;
+                        bulkStatusPembayaran.value = '';
+                        bulkActionForm.submit();
+                        return;
+                    }
+
+                    const paymentResult = await Swal.fire({
+                        title: 'Status Pembayaran',
+                        input: 'select',
+                        inputOptions: {
+                            lunas: 'Lunas',
+                            belum_lunas: 'Belum Lunas'
+                        },
+                        inputPlaceholder: 'Pilih status pembayaran',
+                        showCancelButton: true,
+                        confirmButtonText: 'Terapkan',
+                        cancelButtonText: 'Batal'
+                    });
+
+                    if (!paymentResult.isConfirmed || !paymentResult.value) {
+                        return;
+                    }
+
+                    bulkActionType.value = 'status_pembayaran';
+                    bulkStatusPembayaran.value = paymentResult.value;
+                    bulkStatusTransaksi.value = '';
+                    bulkActionForm.submit();
+                });
+            }
         });
     </script>
     @endpush

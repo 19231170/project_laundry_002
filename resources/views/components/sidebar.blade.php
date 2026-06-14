@@ -96,10 +96,31 @@
             <div class="border-t border-gray-200 dark:border-gray-700 my-2"></div>
             
             <!-- Pengaturan Section -->
-            <div class="mb-4">
-                <x-sidebar-link :href="route('profile.edit')" :active="request()->routeIs('profile.*')" :icon="'<svg class=\'w-5 h-5\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\' xmlns=\'http://www.w3.org/2000/svg\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z\'></path><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M15 12a3 3 0 11-6 0 3 3 0 016 0z\'></path></svg>'">
-                    {{ __('PENGATURAN') }}
+            <x-sidebar-dropdown title="PENGATURAN" :active="request()->routeIs('profile.*') || request()->routeIs('admin.*')">
+                <x-sidebar-link :href="route('profile.edit')" :active="request()->routeIs('profile.*')" :icon="'<svg class=\'w-5 h-5\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\' xmlns=\'http://www.w3.org/2000/svg\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z\'></path></svg>'">
+                    {{ __('Profil') }}
                 </x-sidebar-link>
+                
+                @if(auth()->user() && auth()->user()->isAdmin())
+                <x-sidebar-link :href="route('admin.pin-management')" :active="request()->routeIs('admin.pin-management')" :icon="'<svg class=\'w-5 h-5\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\' xmlns=\'http://www.w3.org/2000/svg\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z\'></path></svg>'">
+                    {{ __('Manajemen PIN POS') }}
+                </x-sidebar-link>
+                @endif
+            </x-sidebar-dropdown>
+            
+            <!-- Divider -->
+            <div class="border-t border-gray-200 dark:border-gray-700 my-2"></div>
+            
+            <!-- POS Button -->
+            <div class="mb-4 px-2">
+                <a href="{{ route('pos.login') }}" target="_blank"
+                    class="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-lg transition-all shadow-md hover:shadow-lg"
+                    style="background: linear-gradient(to right, #2563eb, #4f46e5); color: #ffffff !important;">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                    </svg>
+                    <span style="color: #ffffff !important; font-weight: 600;">Buka POS</span>
+                </a>
             </div>
         </nav>
     </div>

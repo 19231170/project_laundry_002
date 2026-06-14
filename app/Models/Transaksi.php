@@ -8,12 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 class Transaksi extends Model
 {
     use HasFactory;
-    
+
     protected $table = 'transaksi';
-    
+
     protected $fillable = [
         'kode_transaksi',
         'pelanggan_id',
+        'user_id',
         'total_harga',
         'pembulatan',
         'total_setelah_pembulatan',
@@ -24,9 +25,9 @@ class Transaksi extends Model
         'tanggal_pembayaran',
         'jumlah_dibayar',
         'sisa_pembayaran',
-        'catatan'
+        'catatan',
     ];
-    
+
     protected $casts = [
         'total_harga' => 'decimal:2',
         'pembulatan' => 'integer',
@@ -35,25 +36,33 @@ class Transaksi extends Model
         'tanggal_selesai' => 'date',
         'tanggal_pembayaran' => 'date',
         'jumlah_dibayar' => 'decimal:2',
-        'sisa_pembayaran' => 'decimal:2'
+        'sisa_pembayaran' => 'decimal:2',
     ];
-    
+
+    /**
+     * Get the user who created this transaction.
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function pelanggan()
     {
         return $this->belongsTo(Pelanggan::class);
     }
-    
+
     public function detailTransaksi()
     {
         return $this->hasMany(DetailTransaksi::class);
     }
-    
+
     public static function generateKodeTransaksi()
     {
         $lastTransaction = self::latest('id')->first();
         $lastNumber = $lastTransaction ? intval(substr($lastTransaction->kode_transaksi, -4)) : 0;
         $newNumber = $lastNumber + 1;
-        
-        return 'TRX' . date('Ymd') . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
+
+        return 'TRX'.date('Ymd').str_pad($newNumber, 4, '0', STR_PAD_LEFT);
     }
 }

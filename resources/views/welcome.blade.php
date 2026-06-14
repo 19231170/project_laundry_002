@@ -44,9 +44,17 @@
                     </div>
                     <div>
                         @if (Route::has('login'))
-                            <div class="space-x-4">
+                            <div class="flex items-center space-x-3">
+                                <a href="{{ route('pos.login') }}" class="font-medium px-4 py-2 border border-sky-600 rounded-md text-sky-600 hover:bg-sky-50 flex items-center gap-2 transition-colors">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                    </svg>
+                                    Kasir POS
+                                </a>
                                 @auth
-                                    <a href="{{ url('/dashboard') }}" class="font-medium text-sky-600 hover:text-sky-500">Dashboard</a>
+                                    <a href="{{ url('/dashboard') }}" class="font-medium px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500">
+                                        Dashboard
+                                    </a>
                                 @else
                                     <a href="{{ route('login') }}" class="font-medium px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500">
                                         Login
@@ -69,7 +77,7 @@
                             <p class="mt-6 text-xl max-w-3xl">
                                 Sistem manajemen untuk pencatat keuangan yang mudah digunakan dan efisien untuk bisnis laundry Anda. Lacak transaksi, kelola pembayaran, dan lihat laporan dengan mudah.
                             </p>
-                            <div class="mt-8">
+                            <div class="mt-8 flex flex-wrap gap-4">
                                 @auth
                                     <a href="{{ url('/dashboard') }}" class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md bg-white text-sky-600 hover:bg-sky-50">
                                         Masuk ke Dashboard
@@ -79,6 +87,12 @@
                                         Masuk Sebagai Pencatat Keuangan
                                     </a>
                                 @endauth
+                                <a href="{{ route('pos.login') }}" class="inline-flex items-center justify-center gap-2 px-5 py-3 border-2 border-white text-base font-medium rounded-md text-white hover:bg-white hover:text-sky-600 transition-colors">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                    </svg>
+                                    Masuk ke Kasir POS
+                                </a>
                             </div>
                         </div>
                         <div class="mt-12 lg:mt-0 flex justify-center">

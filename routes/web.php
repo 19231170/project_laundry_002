@@ -1,11 +1,22 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\InventarisController;
+use App\Http\Controllers\KategoriPengeluaranController;
+use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\LayananController;
+use App\Http\Controllers\PelangganController;
+use App\Http\Controllers\PengeluaranController;
+use App\Http\Controllers\Pos\PosAuthController;
+use App\Http\Controllers\Pos\PosController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\TransaksiController;
 use App\Http\Controllers\Web\LaporanWebController;
 use App\Http\Controllers\Web\LayananWebController;
 use App\Http\Controllers\Web\PelangganWebController;
 use App\Http\Controllers\Web\TransaksiWebController;
+use App\Http\Controllers\Web\UserPinController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -49,6 +60,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     ]);
 
     // Transaksi Web Routes
+    Route::put('transaksi/bulk-action', [TransaksiWebController::class, 'bulkAction'])->name('transaksi.bulk-action');
     Route::resource('transaksi', TransaksiWebController::class)->names([
         'index' => 'transaksi.index',
         'create' => 'transaksi.create',
@@ -106,31 +118,31 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Web API routes (using session authentication for JavaScript fetch)
     Route::prefix('web-api')->name('web-api.')->group(function () {
-        Route::apiResource('pengeluaran', \App\Http\Controllers\PengeluaranController::class);
-        Route::apiResource('kategori-pengeluaran', \App\Http\Controllers\KategoriPengeluaranController::class);
-        Route::apiResource('supplier', \App\Http\Controllers\SupplierController::class);
-        Route::apiResource('inventaris', \App\Http\Controllers\InventarisController::class);
-        Route::apiResource('pelanggan', \App\Http\Controllers\PelangganController::class);
-        Route::apiResource('layanan', \App\Http\Controllers\LayananController::class);
-        Route::apiResource('transaksi', \App\Http\Controllers\TransaksiController::class);
+        Route::apiResource('pengeluaran', PengeluaranController::class);
+        Route::apiResource('kategori-pengeluaran', KategoriPengeluaranController::class);
+        Route::apiResource('supplier', SupplierController::class);
+        Route::apiResource('inventaris', InventarisController::class);
+        Route::apiResource('pelanggan', PelangganController::class);
+        Route::apiResource('layanan', LayananController::class);
+        Route::apiResource('transaksi', TransaksiController::class);
 
         // Laporan routes
         Route::prefix('laporan')->group(function () {
-            Route::get('dashboard', [\App\Http\Controllers\LaporanController::class, 'getDashboardStats']);
-            Route::get('pemasukan-pengeluaran', [\App\Http\Controllers\LaporanController::class, 'getLaporanPemasukanPengeluaran']);
-            Route::get('layanan-terlaris', [\App\Http\Controllers\LaporanController::class, 'getLaporanLayananTerlaris']);
-            Route::get('laba-rugi', [\App\Http\Controllers\LaporanController::class, 'getLaporanLabaRugi']);
-            Route::get('penggunaan-bahan', [\App\Http\Controllers\LaporanController::class, 'getLaporanPenggunaanBahan']);
-            Route::get('pengeluaran-per-kategori', [\App\Http\Controllers\LaporanController::class, 'getLaporanPengeluaranPerKategori']);
-            Route::get('pembulatan', [\App\Http\Controllers\LaporanController::class, 'getLaporanPembulatan']);
+            Route::get('dashboard', [LaporanController::class, 'getDashboardStats']);
+            Route::get('pemasukan-pengeluaran', [LaporanController::class, 'getLaporanPemasukanPengeluaran']);
+            Route::get('layanan-terlaris', [LaporanController::class, 'getLaporanLayananTerlaris']);
+            Route::get('laba-rugi', [LaporanController::class, 'getLaporanLabaRugi']);
+            Route::get('penggunaan-bahan', [LaporanController::class, 'getLaporanPenggunaanBahan']);
+            Route::get('pengeluaran-per-kategori', [LaporanController::class, 'getLaporanPengeluaranPerKategori']);
+            Route::get('pembulatan', [LaporanController::class, 'getLaporanPembulatan']);
 
             // Export routes
-            Route::get('export/transaksi', [\App\Http\Controllers\LaporanController::class, 'exportTransaksi']);
-            Route::get('export/pemasukan-pengeluaran', [\App\Http\Controllers\LaporanController::class, 'exportPemasukanPengeluaran']);
-            Route::get('export/laba-rugi', [\App\Http\Controllers\LaporanController::class, 'exportLabaRugi']);
-            Route::get('export/penggunaan-bahan', [\App\Http\Controllers\LaporanController::class, 'exportPenggunaanBahan']);
-            Route::get('export/pengeluaran-per-kategori', [\App\Http\Controllers\LaporanController::class, 'exportPengeluaranPerKategori']);
-            Route::get('export/pembulatan', [\App\Http\Controllers\LaporanController::class, 'exportPembulatan']);
+            Route::get('export/transaksi', [LaporanController::class, 'exportTransaksi']);
+            Route::get('export/pemasukan-pengeluaran', [LaporanController::class, 'exportPemasukanPengeluaran']);
+            Route::get('export/laba-rugi', [LaporanController::class, 'exportLabaRugi']);
+            Route::get('export/penggunaan-bahan', [LaporanController::class, 'exportPenggunaanBahan']);
+            Route::get('export/pengeluaran-per-kategori', [LaporanController::class, 'exportPengeluaranPerKategori']);
+            Route::get('export/pembulatan', [LaporanController::class, 'exportPembulatan']);
         });
     });
 });
@@ -139,6 +151,36 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Admin routes for PIN management
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::get('/pin-management', [UserPinController::class, 'index'])->name('pin-management');
+        Route::put('/users/{user}/pin', [UserPinController::class, 'updatePin'])->name('users.update-pin');
+        Route::delete('/users/{user}/pin', [UserPinController::class, 'removePin'])->name('users.remove-pin');
+        Route::put('/users/{user}/toggle-admin', [UserPinController::class, 'toggleAdmin'])->name('users.toggle-admin');
+    });
+});
+
+/*
+|--------------------------------------------------------------------------
+| POS Routes (Separate PIN Authentication)
+|--------------------------------------------------------------------------
+*/
+
+// POS Login (no auth required - uses PIN)
+Route::prefix('pos')->name('pos.')->group(function () {
+    Route::get('/login', [PosAuthController::class, 'showLoginForm'])->name('login');
+    Route::post('/verify-pin', [PosAuthController::class, 'verifyPin'])->name('verify-pin');
+    Route::post('/logout', [PosAuthController::class, 'logout'])->name('logout');
+});
+
+// POS Protected Routes (requires POS session)
+Route::prefix('pos')->name('pos.')->middleware('pos.session')->group(function () {
+    Route::get('/', [PosController::class, 'index'])->name('index');
+    Route::get('/search-pelanggan', [PosController::class, 'searchPelanggan'])->name('search-pelanggan');
+    Route::post('/store-pelanggan', [PosController::class, 'storePelanggan'])->name('store-pelanggan');
+    Route::post('/checkout', [PosController::class, 'checkout'])->name('checkout');
+    Route::get('/receipt/{transaksi}', [PosController::class, 'receipt'])->name('receipt');
 });
 
 require __DIR__.'/auth.php';
