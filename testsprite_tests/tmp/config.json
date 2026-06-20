@@ -1,0 +1,19 @@
+{
+  "status": "commited",
+  "type": "frontend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:8000",
+  "loginUser": "admin@laundry.com",
+  "loginPassword": "admin123",
+  "executionArgs": {
+    "projectName": "project_laundry_002",
+    "projectPath": "c:\\project\\project_laundry_002",
+    "testIds": [],
+    "additionalInstruction": "",
+    "serverMode": "development",
+    "envs": {
+      "API_KEY": "sk-user-3jnbRqn0IxLy1wxDDHSxL6ZoQzGtWEQyEzoGPo9zydX5h2n7CKZUnH4uYv9-CCqUFPL6UHz2ujITulV33HxCCk3xGsXEOlFEASl8uGrDp1Bg7YQzcclQvjXwGf8DiMNZ1ZE"
+    }
+  },
+  "serverPort": 62185
+}

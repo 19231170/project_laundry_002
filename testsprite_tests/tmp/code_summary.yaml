@@ -1,0 +1,80 @@
+version: "2"
+type: frontend
+tech_stack:
+  - blade
+  - alpinejs
+  - tailwindcss
+  - javascript
+routes:
+  - path: /login
+    file: resources/views/auth/login.blade.php
+    auth_required: false
+    description: User login page
+  - path: /pos/login
+    file: resources/views/pos/login.blade.php
+    auth_required: false
+    description: POS login page using PIN
+  - path: /dashboard
+    file: resources/views/dashboard.blade.php
+    auth_required: true
+    description: Admin dashboard
+  - path: /pelanggan
+    file: resources/views/pelanggan/index.blade.php
+    auth_required: true
+    description: Customer list page
+  - path: /layanan
+    file: resources/views/layanan/index.blade.php
+    auth_required: true
+    description: Service list page
+  - path: /transaksi
+    file: resources/views/transaksi/index.blade.php
+    auth_required: true
+    description: Transaction list page
+  - path: /pos
+    file: resources/views/pos/index.blade.php
+    auth_required: true
+    description: Point of Sale interface
+features:
+  - name: User Login
+    description: Login with email and password credentials
+    files:
+      - resources/views/auth/login.blade.php
+    entry_route: /login
+    user_interactions:
+      - Fill email input field
+      - Fill password input field
+      - Click Login button to submit
+      - See error message on invalid credentials
+    api_calls:
+      - method: POST
+        endpoint: /login
+    auth_required: false
+  - name: POS Login
+    description: Login to POS using PIN
+    files:
+      - resources/views/pos/login.blade.php
+    entry_route: /pos/login
+    user_interactions:
+      - Enter PIN
+      - Submit PIN
+    api_calls:
+      - method: POST
+        endpoint: /pos/verify-pin
+    auth_required: false
+  - name: POS Interface
+    description: Point of Sale interface for transactions
+    files:
+      - resources/views/pos/index.blade.php
+    entry_route: /pos
+    user_interactions:
+      - Search for customer
+      - Select service
+      - Add to cart
+      - Checkout
+    api_calls:
+      - method: GET
+        endpoint: /pos/search-pelanggan
+      - method: POST
+        endpoint: /pos/checkout
+    auth_required: true
+known_limitations: []

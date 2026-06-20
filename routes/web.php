@@ -16,6 +16,7 @@ use App\Http\Controllers\Web\LaporanWebController;
 use App\Http\Controllers\Web\LayananWebController;
 use App\Http\Controllers\Web\PelangganWebController;
 use App\Http\Controllers\Web\TransaksiWebController;
+use App\Http\Controllers\Web\BulkTransaksiController;
 use App\Http\Controllers\Web\UserPinController;
 use Illuminate\Support\Facades\Route;
 
@@ -61,6 +62,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Transaksi Web Routes
     Route::put('transaksi/bulk-action', [TransaksiWebController::class, 'bulkAction'])->name('transaksi.bulk-action');
+    Route::get('transaksi/bulk-create', [BulkTransaksiController::class, 'create'])->name('transaksi.bulk-create');
+    Route::post('transaksi/bulk', [BulkTransaksiController::class, 'store'])->name('transaksi.bulk-store');
     Route::resource('transaksi', TransaksiWebController::class)->names([
         'index' => 'transaksi.index',
         'create' => 'transaksi.create',

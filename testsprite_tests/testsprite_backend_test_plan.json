@@ -1,0 +1,47 @@
+[
+  {
+    "id": "TC001",
+    "title": "get_all_pelanggan_should_return_customer_list",
+    "description": "Test GET /api/v1/pelanggan to ensure it returns a 200 status code with an array of pelanggan data representing the customer list."
+  },
+  {
+    "id": "TC002",
+    "title": "post_pelanggan_with_valid_data_should_create_customer",
+    "description": "Test POST /api/v1/pelanggan with valid nama, telepon, alamat, and email fields to verify it returns 200 with the created pelanggan object."
+  },
+  {
+    "id": "TC003",
+    "title": "post_pelanggan_with_invalid_data_should_return_validation_error",
+    "description": "Test POST /api/v1/pelanggan with missing or invalid required fields to verify it returns a 400 validation error with appropriate messages."
+  },
+  {
+    "id": "TC004",
+    "title": "get_all_layanan_should_return_service_list",
+    "description": "Test GET /api/v1/layanan to ensure it returns a 200 status code with an array of layanan data representing available laundry services."
+  },
+  {
+    "id": "TC005",
+    "title": "post_layanan_with_valid_data_should_create_service",
+    "description": "Test POST /api/v1/layanan with valid nama_layanan, satuan, harga, and deskripsi to verify it returns 200 with the created layanan object."
+  },
+  {
+    "id": "TC006",
+    "title": "post_layanan_with_invalid_data_should_return_validation_error",
+    "description": "Test POST /api/v1/layanan with invalid harga or incomplete request body to verify it returns a 400 validation error prompting correction."
+  },
+  {
+    "id": "TC007",
+    "title": "get_all_transaksi_should_return_transaction_list",
+    "description": "Test GET /api/v1/transaksi to ensure it returns a 200 status code with an array of transaksi data showing transaction history and statuses."
+  },
+  {
+    "id": "TC008",
+    "title": "post_transaksi_with_valid_data_should_create_transaction",
+    "description": "Test POST /api/v1/transaksi with valid pelanggan_id, tanggal_masuk, tanggal_selesai, status, catatan, and layanan array to verify it returns 200 with the created transaksi object."
+  },
+  {
+    "id": "TC009",
+    "title": "post_transaksi_with_invalid_data_should_return_validation_error",
+    "description": "Test POST /api/v1/transaksi with invalid pelanggan_id or malformed layanan array to verify it returns a 400 validation error rejecting the transaction creation."
+  }
+]

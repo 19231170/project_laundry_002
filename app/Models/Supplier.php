@@ -26,11 +26,6 @@ class Supplier extends Model
         'is_active' => 'boolean',
     ];
     
-    public function detailPengeluaran()
-    {
-        return $this->hasMany(DetailPengeluaran::class);
-    }
-    
     public function inventaris()
     {
         return $this->hasMany(Inventaris::class);

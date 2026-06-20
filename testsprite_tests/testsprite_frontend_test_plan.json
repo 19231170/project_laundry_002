@@ -1,0 +1,452 @@
+[
+  {
+    "id": "TC001",
+    "title": "Cashier completes a POS sale from customer search to checkout",
+    "description": "This verifies that a cashier can search for a customer, add a service to the cart, and complete checkout successfully.",
+    "category": "POS Interface",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /pos/login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the PIN field with a valid PIN"
+      },
+      {
+        "type": "action",
+        "description": "Submit the PIN"
+      },
+      {
+        "type": "action",
+        "description": "Search for a customer"
+      },
+      {
+        "type": "action",
+        "description": "Select a service"
+      },
+      {
+        "type": "action",
+        "description": "Add the selected item to the cart"
+      },
+      {
+        "type": "action",
+        "description": "Checkout the cart"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the transaction completion state is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the sale is reflected in the POS interface"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC002",
+    "title": "Admin logs in and reaches the dashboard",
+    "description": "This verifies that a valid admin can sign in and access the main dashboard successfully.",
+    "category": "User Login",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the dashboard is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify protected dashboard content is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC003",
+    "title": "POS user logs in with a PIN and reaches the POS interface",
+    "description": "This verifies that a valid POS PIN opens the cashier interface successfully.",
+    "category": "POS Login",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /pos/login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the PIN field with a valid PIN"
+      },
+      {
+        "type": "action",
+        "description": "Submit the PIN"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the POS interface is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify POS controls are visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC004",
+    "title": "Unauthenticated user is blocked from the POS interface",
+    "description": "This verifies that visiting the POS page without authentication sends the user to the POS login page.",
+    "category": "POS Login",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /pos"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the POS login page is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the POS interface is not accessible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC005",
+    "title": "Unauthenticated user is blocked from the dashboard",
+    "description": "This verifies that visiting the dashboard without signing in sends the user to the appropriate login page.",
+    "category": "User Login",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the login page is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the dashboard is not accessible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC006",
+    "title": "Unauthenticated user is blocked from master data pages",
+    "description": "This verifies that visiting protected master data pages without signing in redirects the user to the login page.",
+    "category": "Protected route access",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /pelanggan"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the login page is displayed"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /layanan"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the login page is displayed"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /transaksi"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the login page is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC007",
+    "title": "Authenticated user can browse the customer list",
+    "description": "This verifies that an authenticated user can open the customer list and view customer data.",
+    "category": "Customer list",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open the customer list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the customer list is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify customer data entries are visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC008",
+    "title": "User sees an error for invalid login credentials",
+    "description": "This verifies that submitting invalid login credentials keeps the user on the login page and shows an authentication error.",
+    "category": "User Login",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with invalid@example.com"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with invalid-password"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the login page remains displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an invalid credential error is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC009",
+    "title": "Authenticated user can browse the service list",
+    "description": "This verifies that an authenticated user can open the service list and view service names, units, and prices.",
+    "category": "Service list",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open the service list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the service list is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify service names, units, and prices are visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC010",
+    "title": "Authenticated user can view recent transactions",
+    "description": "This verifies that an authenticated user can open the transaction list and review recent sales status.",
+    "category": "Transaction list",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open the transaction list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the transaction list is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify recent transaction statuses are visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC011",
+    "title": "Cashier sees the cart update after adding a service",
+    "description": "This verifies that adding a selected service to the cart updates the visible cart contents.",
+    "category": "POS Interface",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /pos/login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the PIN field with a valid PIN"
+      },
+      {
+        "type": "action",
+        "description": "Submit the PIN"
+      },
+      {
+        "type": "action",
+        "description": "Search for a customer"
+      },
+      {
+        "type": "action",
+        "description": "Select a service"
+      },
+      {
+        "type": "action",
+        "description": "Add the selected item to the cart"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the cart shows the added item"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the cart total is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC012",
+    "title": "User sees validation when login credentials are empty",
+    "description": "This verifies that attempting to submit the login form without credentials shows required-field validation.",
+    "category": "User Login",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the login form is still displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify login validation errors are visible"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC013",
+    "title": "POS login shows validation for an empty PIN",
+    "description": "This verifies that submitting the POS login form without a PIN shows a validation message.",
+    "category": "POS Login",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /pos/login"
+      },
+      {
+        "type": "action",
+        "description": "Submit the PIN"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the PIN form remains displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a PIN validation error is visible"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC014",
+    "title": "Cashier cannot checkout an empty cart",
+    "description": "This verifies that attempting to checkout without items keeps the cart unchanged and shows a checkout validation message.",
+    "category": "POS Interface",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /pos/login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the PIN field with a valid PIN"
+      },
+      {
+        "type": "action",
+        "description": "Submit the PIN"
+      },
+      {
+        "type": "action",
+        "description": "Checkout the cart"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the cart remains empty"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a checkout validation message is visible"
+      }
+    ],
+    "priority": "Low"
+  }
+]
